@@ -1,0 +1,38 @@
+#+TITLE: early-init.org
+#+AUTHOR: Azlle
+#+STARTUP: show2levels
+#+OPTIONS: toc:nil
+
+#+BEGIN_SRC emacs-lisp
+;; -*- lexical-binding: t; -*-
+
+(setq gc-cons-threshold most-positive-fixnum)
+
+(setq package-enable-at-startup nil)
+
+(setq custom-file (locate-user-emacs-file "custom.el"))
+
+(push '(min-height . 1) default-frame-alist)
+(push '(min-width . 1) default-frame-alist)
+(push '(height . 45) default-frame-alist)
+(push '(width . 81) default-frame-alist)
+(push '(internal-border-width . 24) default-frame-alist)
+(push '(vertical-scroll-bars . nil) default-frame-alist)
+(push '(left-fringe . 1) default-frame-alist)
+(push '(right-fringe . 1) default-frame-alist)
+;; (push '(fullscreen . maximized) default-frame-alist)
+(push '(tool-bar-lines . 0) default-frame-alist)
+(push '(menu-bar-lines . 0) default-frame-alist)
+
+(defconst init/saved-file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+
+(custom-set-variables '(warning-suppress-types '((comp))))
+(with-eval-after-load 'comp
+  (setq native-comp-async-jobs-number 8)
+  (setq native-comp-speed 3)
+  (setq native-comp-always-compile t))
+
+(provide 'early-init)
+;;; early-init.el ends here
+#+END_SRC

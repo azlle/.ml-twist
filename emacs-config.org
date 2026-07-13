@@ -1,0 +1,817 @@
+#+TITLE: emacs-config.org
+#+AUTHOR: Azlle
+#+STARTUP: show2levels
+#+OPTIONS: toc:nil
+
+* Initialize
+** Header
+#+BEGIN_SRC emacs-lisp
+;;; init.el --- -*- lexical-binding: t -*-
+#+END_SRC
+
+** defconst system-type
+#+BEGIN_SRC emacs-lisp
+(defconst IS-MAC     (eq system-type 'darwin))
+(defconst IS-LINUX   (memq system-type '(gnu gnu/linux gnu/kfreebsd berkeley-unix)))
+(defconst IS-NIXOS   (and IS-LINUX (file-exists-p "/etc/NIXOS")))
+(defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
+#+END_SRC
+
+** OMAJINAI
+#+BEGIN_SRC emacs-lisp
+(when IS-WINDOWS
+  (set-language-environment "UTF-8")
+  (setopt file-name-coding-system 'cp932)
+  (setopt default-process-coding-system '(utf-8-dos . japanese-cp932-dos)))
+#+END_SRC
+
+* Package Manager
+** package(deprecated)
+- Twist.nixを使用しているので一旦不要とさせていただく
+#+BEGIN_SRC emacs-lisp :tangle no
+(require 'package)
+(setopt package-archives '( ("gnu"    . "https://elpa.gnu.org/packages/")
+                            ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                            ("melpa"  . "https://melpa.org/packages/")))
+(package-initialize)
+#+END_SRC
+
+** use-package
+#+BEGIN_SRC emacs-lisp
+(eval-when-compile
+  (require 'use-package))
+
+(eval-and-compile
+  (setopt use-package-ensure-function #'(lambda (&rest args) t))
+  (setopt use-package-always-defer t)
+  (setopt use-package-compute-statistics t))
+#+END_SRC
+
+** twist
+#+BEGIN_SRC emacs-lisp
+(use-package twist
+  :ensure t
+  :hook (emacs-startup . twist-watch-mode))
+#+END_SRC
+
+* Keybindings
+- 各パッケージ本体のコマンド/Emacs組み込みコマンドへのグローバルバインドはここに集約する
+- corfu/companyのようにローカルキーマップ(:map)へのバインドはglobal-set-keyで代替できないため、各パッケージのuse-package定義内に残す
+** Global
+*** Special Keys
+#+BEGIN_SRC emacs-lisp
+;; emacs本体
+(global-set-key (kbd "<f1>") 'help-command)
+(global-set-key (kbd "C-h") 'backward-delete-char-untabify)
+;; マルチプレクサのキーをC-qにしたいので
+(global-set-key (kbd "C-S-q") 'quoted-insert)
+(global-set-key (kbd "C-q") nil)
+(global-set-key (kbd "C-<right>") 'centaur-tabs-backward)
+(global-set-key (kbd "C-<left>") 'centaur-tabs-forward)
+(global-set-key (kbd "C-'") 'azlle/toggle-eat-window)
+#+END_SRC
+
+*** C-x
+#+BEGIN_SRC emacs-lisp
+;; consult
+(global-set-key (kbd "C-x b") 'consult-buffer)
+(global-set-key (kbd "C-x C-j") 'skk-mode)
+(global-set-key (kbd "C-x u") 'vundo)
+(global-set-key (kbd "C-x g") 'magit-status)
+#+END_SRC
+
+*** C-c
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c r") 'consult-recent-file)
+(global-set-key (kbd "C-c n n") 'denote)
+(global-set-key (kbd "C-c n f") 'denote-open-or-create)
+(global-set-key (kbd "C-c n l") 'denote-link)
+(global-set-key (kbd "C-c n b") 'denote-backlinks)
+(global-set-key (kbd "C-c n r") 'denote-rename-file)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c c") 'org-capture)
+(global-set-key (kbd "C-c m") 'hydra-multiple-cursors/body)
+#+END_SRC
+
+*** M-*
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-s l") 'consult-line) ; 行検索 (C-s の強化版)
+#+END_SRC
+
+* Appearance
+** nerd-icons
+#+BEGIN_SRC emacs-lisp
+(use-package nerd-icons :ensure t)
+#+END_SRC
+
+** nerd-icons-corfu
+#+BEGIN_SRC emacs-lisp
+(use-package nerd-icons-corfu
+  :after (nerd-icons corfu)
+  :ensure t
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+#+END_SRC
+
+** kaolin-themes
+#+BEGIN_SRC emacs-lisp
+(use-package kaolin-themes
+  :ensure t
+  :demand t
+  :config
+  ;; (load-theme 'kaolin-galaxy t)    ; 今のところ常用のヤツ
+  ;; (load-theme 'kaolin-bubblegum t) ; 青色基調のヤツ
+  (load-theme 'kaolin-aurora t))      ; galaxyの緑版みたいな
+#+END_SRC
+
+** doom-modeline
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-height 32
+        doom-modeline-bar-width 8)
+  :custom
+  (doom-modeline-icon t)
+  (doom-modeline-font-family "Explex Console NF 10"))
+  ;; (doom-modeline-font-family "Symbols Nerd Font Mono"))
+#+END_SRC
+
+** moody
+#+BEGIN_SRC emacs-lisp
+(use-package moody
+  :ensure t
+  :demand t
+  :custom
+  (x-underline-at-descent-line t)
+  :config
+  (moody-replace-mode-line-buffer-identification)
+  ;; (moody-replace-vc-mode)
+  (moody-replace-eldoc-minibuffer-message-function))
+#+END_SRC
+
+** centaur-tabs
+#+BEGIN_SRC emacs-lisp
+(use-package centaur-tabs
+  :ensure t
+  :demand
+  :config
+  (centaur-tabs-mode t)
+  (centaur-tabs-headline-match)
+  (setq centaur-tabs-style "wave"
+        centaur-tabs-height 32
+        ;; centaur-tabs-show-navigation-buttons t
+        centaur-tabs-set-icons t
+        centaur-tabs-icon-type 'nerd-icons
+        centaur-tabs-gray-out-icons 'buffer
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-modified-marker "")
+  )
+#+END_SRC
+
+** dashboard
+#+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :ensure t
+  :demand t
+  :config
+  (setq inhibit-startup-message t)
+  (setq dashboard-center-content t)
+  (setq dashboard-vertically-center-content t)
+  (setq dashboard-items '((recents  . 5)
+                          (bookmarks . 5)
+                          (projects . 5)))
+
+  (setq dashboard-startup-banner
+        (if (and (display-graphic-p)
+                 (image-type-available-p 'png))
+            (expand-file-name "assets/banner.png" user-emacs-directory)
+          (expand-file-name "assets/banner.txt" user-emacs-directory)))
+
+  (setq dashboard-banner-logo-title "SUPER DUPER AMANATSU-CHAN!")
+  (setq dashboard-footer-messages '("「君らにはもう 二度と危険ってやつは訪れない」"
+                                    "「ちゃんとしてますね 実に」"
+                                    "「SCIENCE IS ELEGANT」"
+                                    "「はっは──!! 飛び出たぜついに!!! 宇宙は俺のものだ!!!!!」"
+                                    "「……いや できるか?」「ああ できるね」"
+                                    "「スイカがゼロから 科学をやれば……!!!」"
+                                    "「たった 7年か 早かったな……!!」"))
+  (dashboard-setup-startup-hook))
+#+END_SRC
+
+* Completion
+** corfu
+#+BEGIN_SRC emacs-lisp
+(use-package corfu
+  :ensure t
+  :bind (:map corfu-map
+         ("C-n" . corfu-next)
+         ("C-p" . corfu-previous)
+         ("C-f" . corfu-insert))
+  :custom
+  (corfu-auto t)
+  (corfu-auto-delay 0)
+  (corfu-auto-prefix 1)
+  (corfu-cycle t)
+  :init
+  (global-corfu-mode))
+
+(use-package corfu-history
+  :after corfu
+  :init
+  (corfu-history-mode)
+  (with-eval-after-load 'savehist
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
+#+END_SRC
+
+** company(deprecated)
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package company
+  :ensure t
+  :bind (("C-M-i" . company-complete)
+         :map company-active-map
+         ("M-n" . nil)
+         ("M-p" . nil)
+         ("C-s" . company-filter-candidates)
+         ("C-n" . company-select-next)
+         ("C-p" . company-select-previous)
+         ("C-f" . company-complete-selection)
+         :map company-search-map
+         ("C-n" . company-select-next)
+         ("C-p" . company-select-previous))
+  :custom
+  (company-idle-delay 0)
+  (company-minimum-prefix-length 1)
+  (company-transformers '(company-sort-by-occurrence))
+  :init
+  (global-company-mode t))
+#+END_SRC
+
+** vertico/orderless/consult
+#+BEGIN_SRC emacs-lisp
+;; --- 1. 履歴の保存設定 (recentf) ---
+(recentf-mode 1)
+(setq recentf-max-saved-items 2000)
+
+;; --- 2. Vertico (一覧表示のUI) ---
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode))
+
+;; --- 3. Orderless (高度な絞り込み) ---
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+;; --- 4. Consult (履歴検索とプレビュー) ---
+(use-package consult
+  :ensure t
+  :config
+                                        ; プレビューを即座に表示する設定
+  (setq consult-preview-key 'any))
+#+END_SRC
+
+* Editor
+** emacs
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :ensure nil
+  :init
+  (set-locale-environment "ja_JP.UTF-8")
+
+  :custom
+  (display-line-numbers-type 'relative)
+  (kill-whole-line t)
+  (indent-tabs-mode nil)
+  (tab-width 2)
+  (use-short-answers t)
+  (make-backup-files nil)
+  (backup-inhibited nil)
+  (create-lockfiles nil)
+  (read-process-output-max (* 1024 1024))
+
+  :config
+  (add-to-list 'default-frame-alist '(undecorated . t))
+  (set-frame-parameter nil 'undecorated t)
+  (global-display-line-numbers-mode t)
+  (set-face-attribute 'default nil
+                      :family "Moralerspace Neon HW"
+                      :height (if IS-NIXOS 130 100))
+
+  ;; ;; japanese-jisx0208, japanese-jisx0213.2004-1
+  ;; (set-fontset-font t 'unicode
+  ;;                   (font-spec :family "BIZ UDGothic"))
+
+  ;; (setq face-font-rescale-alist
+  ;;     '(("BIZ UDGothic" . 1.2)))
+
+  (dolist (range '((#xE000   . #xF8FF)
+                   (#xF0000  . #xFFFFF)
+                   (#x100000 . #x10FFFF)))
+    (set-fontset-font t range
+                      (font-spec :family "Symbols Nerd Font Mono"))))
+#+END_SRC
+
+** gcmh
+#+BEGIN_SRC emacs-lisp
+(use-package gcmh
+  :ensure t
+  :hook (after-init . gcmh-mode)
+  :custom
+  (gcmh-verbose init-file-debug)
+  (gcmh-high-cons-threshold (* 128 1024 1024)))
+#+END_SRC
+
+** whitespace
+#+BEGIN_SRC emacs-lisp
+(use-package whitespace
+  :ensure nil
+  :hook (after-init . global-whitespace-mode)
+  :custom
+  (whitespace-style '(face
+                      trailing
+                      tabs
+                      spaces
+                      empty
+                      space-mark
+                      tab-mark))
+
+  (whitespace-display-mappings
+   '((space-mark ?\u3000 [?\u25a1])
+     ;; WARNING: the mapping below has a problem.
+     ;; When a TAB occupies exactly one column, it will display the
+     ;; character ?\xBB at that column followed by a TAB which goes to
+     ;; the next TAB column.
+     ;; If this is a problem for you, please, comment the line below.
+     (tab-mark ?\t [?\u00BB ?\t] [?\\ ?\t])))
+
+  (whitespace-space-regexp "\\(\u3000+\\)")
+
+  (whitespace-trailing-regexp "\\([ \u00A0]+\\)$")
+
+  (whitespace-action '(auto-cleanup)))
+#+END_SRC
+
+* 日本語入力
+** ddskk
+#+BEGIN_SRC emacs-lisp
+(use-package ddskk
+  :ensure t
+  :init
+  (setq skk-large-jisyo
+        (cond
+         (IS-WINDOWS
+          "~/.emacs.d/skk-get-jisyo/SKK-JISYO.L")
+         (IS-NIXOS
+          "~/.local/state/home-manager/gcroots/current-home/home-path/share/skk/SKK-JISYO.L")
+         (t
+          "~/.nix-profile/share/skk/SKK-JISYO.L")))
+  (setq skk-egg-like-newline t)
+  (setq skk-show-annotation t)
+  (setq skk-share-private-jisyo t)
+  (setq skk-azik-keyboard-type 'en)
+
+  (defun my/skk-azik-load-hooks ()
+    (dolist (str '("kv" "jv" "dv" "nv" "pv" "mv" "yv"
+                   "sm" "zm" "dm" "fm" "kA" "kE"
+                   "vz" "vn" "vk" "vd" "vl"))
+      (setq skk-rom-kana-rule-list
+            (skk-del-alist str skk-rom-kana-rule-list)))
+    (dolist (rule '(
+                    ("gga" nil ("ギャ" . "ぎゃ"))
+                    ("ggu" nil ("ギュ" . "ぎゅ"))
+                    ("gge" nil ("ギェ" . "ぎぇ"))
+                    ("ggo" nil ("ギョ" . "ぎょ"))
+                    ("ggz" nil ("ギャン" . "ぎゃん"))
+                    ("ggn" nil ("ギャン" . "ぎゃん"))
+                    ("ggj" nil ("ギュン" . "ぎゅん"))
+                    ("ggd" nil ("ギェン" . "ぎぇん"))
+                    ("ggl" nil ("ギョン" . "ぎょん"))
+                    ("ggq" nil ("ギャイ" . "ぎゃい"))
+                    ("ggh" nil ("ギュウ" . "ぎゅう"))
+                    ("ggw" nil ("ギェイ" . "ぎぇい"))
+                    ("ggp" nil ("ギョウ" . "ぎょう"))
+
+                    ("bga" nil ("ビャ" . "びゃ"))
+                    ("bgu" nil ("ビュ" . "びゅ"))
+                    ("bge" nil ("ビェ" . "びぇ"))
+                    ("bgo" nil ("ビョ" . "びょ"))
+                    ("bgz" nil ("ビャン" . "びゃん"))
+                    ("bgn" nil ("ビャン" . "びゃん"))
+                    ("bgj" nil ("ビュン" . "びゅん"))
+                    ("bgd" nil ("ビェン" . "びぇん"))
+                    ("bgl" nil ("ビョン" . "びょん"))
+                    ("bgq" nil ("ビャイ" . "びゃい"))
+                    ("bgh" nil ("ビュウ" . "びゅう"))
+                    ("bgw" nil ("ビェイ" . "びぇい"))
+                    ("bgp" nil ("ビョウ" . "びょう"))
+
+                    ("rga" nil ("リャ" . "りゃ"))
+                    ("rgu" nil ("リュ" . "りゅ"))
+                    ("rge" nil ("リェ" . "りぇ"))
+                    ("rgo" nil ("リョ" . "りょ"))
+                    ("rgz" nil ("リャン" . "りゃん"))
+                    ("rgn" nil ("リャン" . "りゃん"))
+                    ("rgj" nil ("リュン" . "りゅん"))
+                    ("rgd" nil ("リェン" . "りぇん"))
+                    ("rgl" nil ("リョン" . "りょん"))
+                    ("rgq" nil ("リャイ" . "りゃい"))
+                    ("rgh" nil ("リュウ" . "りゅう"))
+                    ("rgw" nil ("リェイ" . "りぇい"))
+                    ("rgp" nil ("リョウ" . "りょう"))
+
+                    ("ji" nil ("ジ" . "じ"))
+                    ("jk" nil ("ジン" . "じん"))
+
+                    ("xxka" nil ("ヵ" . "ゕ"))
+                    ("xxke" nil ("ヶ" . "ゖ"))
+
+                    ("x-" nil "-")
+                    ("c-" nil "_")
+
+                    ("!" nil "!")
+                    ("?" nil "?")
+
+                    ("fm" nil ("フェン" . "ふぇん"))
+
+                    ("kv" nil ("カン" . "かん"))
+                    ("sv" nil ("サン" . "さん"))
+                    ("tv" nil ("タン" . "たん"))
+                    ("nv" nil ("ナン" . "なん"))
+                    ("hv" nil ("ハン" . "はん"))
+                    ("mv" nil ("マン" . "まん"))
+                    ("yv" nil ("ヤン" . "やん"))
+                    ("rv" nil ("ラン" . "らん"))
+                    ("wv" nil ("ワン" . "わん"))
+                    ("gv" nil ("ガン" . "がん"))
+                    ("zv" nil ("ザン" . "ざん"))
+                    ("jv" nil ("ジャン" . "じゃん"))
+                    ("dv" nil ("ダン" . "だん"))
+                    ("bv" nil ("バン" . "ばん"))
+                    ("pv" nil ("パン" . "ぱん"))
+                    ("fv" nil ("ファン" . "ふぁん"))
+                    ("xv" nil ("シャン" . "しゃん"))
+
+                    ("km" nil ("ケン" . "けん"))
+                    ("sm" nil ("セン" . "せん"))
+                    ("tm" nil ("テン" . "てん"))
+                    ("nm" nil ("ネン" . "ねん"))
+                    ("gm" nil ("ゲン" . "げん"))
+                    ("zm" nil ("ゼン" . "ぜん"))
+                    ("dm" nil ("デン" . "でん"))
+                    ("bm" nil ("ベン" . "べん"))
+                    ("pm" nil ("ペン" . "ぺん"))
+                    ("rm" nil ("レン" . "れん"))
+                    ("hm" nil ("ヘン" . "へん"))
+                    ("mm" nil ("メン" . "めん"))
+
+                    ("vz" nil ("アン" . "あん"))
+                    ("vn" nil ("アン" . "あん"))
+                    ("vv" nil ("アン" . "あん"))
+                    ("vk" nil ("イン" . "いん"))
+                    ("vj" nil ("ウン" . "うん"))
+                    ("vd" nil ("エン" . "えん"))
+                    ("vm" nil ("エン" . "えん"))
+                    ("vl" nil ("オン" . "おん"))
+                    ))
+      (add-to-list 'skk-rom-kana-rule-list rule)))
+
+  (add-hook 'skk-azik-load-hook 'my/skk-azik-load-hooks)
+
+  (setq skk-use-azik t))
+#+END_SRC
+
+* Terminal
+** emacs-eat
+#+BEGIN_SRC emacs-lisp
+(use-package eat
+  :ensure t
+  :config
+  (setopt eat-kill-buffer-on-exit t)
+
+  (add-hook 'kill-buffer-hook
+            (lambda ()
+              (when (eq major-mode 'eat-mode)
+                (let ((eat-win (get-buffer-window (current-buffer))))
+                  (when (and eat-win (> (length (window-list)) 1))
+                    (delete-window eat-win)))))))
+#+END_SRC
+
+* Editing
+** multiple-cursors
+#+BEGIN_SRC emacs-lisp
+(use-package multiple-cursors :ensure t)
+#+END_SRC
+
+** hydra
+#+BEGIN_SRC emacs-lisp
+(use-package hydra :ensure t)
+#+END_SRC
+
+*** hydra-multiple-cursors
+#+BEGIN_SRC emacs-lisp
+(defhydra hydra-multiple-cursors (:hint nil)
+  "
+   Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
+  ------------------------------------------------------------------
+   [_p_]   Next     [_n_]   Next     [_l_] Edit lines  [_0_] Insert numbers
+   [_P_]   Skip     [_N_]   Skip     [_a_] Mark all    [_A_] Insert letters
+   [_M-p_] Unmark   [_M-n_] Unmark   [_s_] Search      [_q_] Quit
+   [_|_] Align with input CHAR     [Click] Cursor at point"
+  ("l" mc/edit-lines :exit t)
+  ("a" mc/mark-all-like-this :exit t)
+  ("n" mc/mark-next-like-this)
+  ("N" mc/skip-to-next-like-this)
+  ("M-n" mc/unmark-next-like-this)
+  ("p" mc/mark-previous-like-this)
+  ("P" mc/skip-to-previous-like-this)
+  ("M-p" mc/unmark-previous-like-this)
+  ("|" mc/vertical-align)
+  ("s" mc/mark-all-in-region-regexp :exit t)
+  ("0" mc/insert-numbers :exit t)
+  ("A" mc/insert-letters :exit t)
+  ("<mouse-1>" mc/add-cursor-on-click)
+  ;; Help with click recognition in this hydra
+  ("<down-mouse-1>" ignore)
+  ("<drag-mouse-1>" ignore)
+  ("q" nil))
+#+END_SRC
+
+** vundo
+#+BEGIN_SRC emacs-lisp
+(use-package vundo
+  :ensure t)
+#+END_SRC
+
+* Note
+** denote
+#+BEGIN_SRC emacs-lisp
+(use-package denote
+  :ensure t
+  :custom
+  (denote-directory (expand-file-name "~/Documents/org-docs/denote/"))
+  (denote-known-keywords '("fleeting" "nix" "nixos" "home-manager"
+                            "flake" "overlay" "solved" "wip" "moc"))
+  (denote-infer-keywords t)
+  (denote-sort-keywords t))
+#+END_SRC
+
+* Gitなど
+** diff-hl
+#+BEGIN_SRC emacs-lisp
+(use-package diff-hl
+  :ensure t
+  :hook ((magit-pre-refresh . diff-hl-magit-pre-refresh)
+         (magit-post-refresh . diff-hl-magit-post-refresh))
+  :config
+  (global-diff-hl-mode))    ; diff-hlモードをグローバルに有効化
+  ;; (diff-hl-margin-mode)) ; フリンジではなくマージン領域に差分表示
+#+END_SRC
+
+** magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :ensure t
+  :config (require 'magit-extras))
+#+END_SRC
+
+** magit-prime
+#+BEGIN_SRC emacs-lisp
+(use-package magit-prime
+  :ensure t
+  :config
+  (magit-prime-mode))
+#+END_SRC
+
+* org関連
+** org-mode
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :config
+  (setq org-directory "~/Documents/org-docs")
+  (setq org-agenda-files '("~/Documents/org-docs/todo.org"))
+
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "|" "DONE(d)" "CANCEL(c)")))
+
+  (setq org-log-repeat nil)
+  (setq org-cycle-separator-lines -1)
+  (setq org-src-preserve-indentation t)
+  (setq org-edit-src-content-indentation 0))
+#+END_SRC
+
+** org-superstar
+- 見出しの見た目を変えてくれるヤツ
+#+BEGIN_SRC emacs-lisp
+(use-package org-superstar
+  :ensure t
+  :hook
+  (org-mode . org-superstar-mode))
+#+END_SRC
+
+** org-appear(deprecated)
+- カーソル位置のorg-mode装飾の実体を表示
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package org-appear
+  :ensure t
+  :hook
+  (org-mode . org-appear-mode)
+  :custom
+  (org-appear-autoemphasis t)
+  (org-appear-autolinks t))
+#+END_SRC
+
+** org-modern(deprecated)
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package org-modern
+  :ensure t
+  :custom
+  (org-modern-keyword nil) ; Headerの修飾を無効に
+  (org-modern-table nil)   ; Tableの修飾を無効に
+  (org-modern-star 'replace)
+  (org-modern-replace-stars "")
+  ;; (org-modern-replace-stars "◉○◈◇✳")
+  :config
+  (global-org-modern-mode)
+  (dolist (face '(org-modern-label
+                  org-modern-date-active
+                  org-modern-date-inactive
+                  org-modern-time-active
+                  org-modern-time-inactive
+                  org-modern-tag
+                  org-modern-priority))
+    (set-face-attribute face nil :height 1.0))
+  (setq org-modern-todo-faces
+        '(("UNIV"      . (:background "#ff5a00" :foreground "#e5e5e5" :weight bold)))))
+#+END_SRC
+
+** valign(deprecated)
+- CJK混在テーブルをいい感じにするヤツ
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package valign
+  :ensure t
+  :hook
+  (org-mode . valign-mode))
+#+END_SRC
+
+** なんだっけなぁここの設定
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((shell . t)))  ; nixはshell経由で実行
+
+(add-to-list 'org-src-lang-modes '("nix" . nix-ts))
+#+END_SRC
+
+* Treesitter
+#+BEGIN_SRC emacs-lisp
+;; 先にnix shell nixpkgs#gccでコンパイル準備をしておく
+(setq treesit-language-source-alist
+      '((nix . ("https://github.com/nix-community/tree-sitter-nix"))))
+#+END_SRC
+
+** Nix
+#+BEGIN_SRC emacs-lisp
+(use-package nix-ts-mode
+  :ensure t
+  :mode "\\.nix\\'"
+  :init
+  (setq treesit-font-lock-level 4))
+#+END_SRC
+
+* azlle/defun
+** Clipboard周りの設定
+#+BEGIN_SRC emacs-lisp
+(setq azlle/wl-copy-process nil)
+(defun azlle/wl-copy (text)
+  (setq azlle/wl-copy-process (make-process :name "wl-copy"
+                                             :buffer nil
+                                             :command '("wl-copy" "-f" "-n")
+                                             :connection-type 'pipe
+                                             :noquery t))
+  (process-send-string azlle/wl-copy-process text)
+  (process-send-eof azlle/wl-copy-process))
+
+(defun azlle/wl-paste ()
+  (if (and azlle/wl-copy-process (process-live-p azlle/wl-copy-process))
+      nil
+    (shell-command-to-string "wl-paste -n | tr -d \r")))
+
+(unless IS-WINDOWS
+  (setq interprogram-cut-function 'azlle/wl-copy)
+  (setq interprogram-paste-function 'azlle/wl-paste))
+#+END_SRC
+
+** urls-cleanup
+*** urls-cleanup-string
+#+BEGIN_SRC emacs-lisp
+(defun azlle/urls-cleanup-string (str)
+  "文字列STRに含まれるYouTube/X/TwitchのURLを整形して返す。"
+  (let ((yt-re (rx "http" (opt "s") "://www.youtube.com/"
+                   (or (seq "live/" (group (one-or-more (not (any "&? \n]")))))
+                       (seq "watch?v=" (group (one-or-more (not (any "&? \n]"))))))
+                   (opt (minimal-match (zero-or-more any)) (any "?&") "t="
+                        (group (one-or-more (not (any "& \n]")))))
+                   (zero-or-more (not (any " \n]")))))
+        (x-re (rx (group "http" (opt "s") "://" (or "x" "twitter") ".com/"
+                         (one-or-more (not (any "/ \n]"))) "/status/" (one-or-more digit))
+                  (zero-or-more (not (any " \n]")))))
+        (tw-re (rx "http" (opt "s") "://www.twitch.tv/"
+                   (or (seq "videos/" (group (one-or-more digit)))
+                       (seq (one-or-more (not (any "/ \n]"))) "/video/" (group (one-or-more digit))))
+                   ;; "?" の後に "&区切りで t= が出るまで読み飛ばす" 形式に変更
+                   (opt "?" (zero-or-more (seq (one-or-more (not (any "=& \n]"))) "="
+                                               (zero-or-more (not (any "& \n]"))) "&"))
+                        "t=" (group (one-or-more (not (any "& \n]")))))
+                   (zero-or-more (not (any " \n]"))))))
+    (cond
+     ((string-match yt-re str)
+      (let ((id (or (match-string 1 str) (match-string 2 str)))
+            (time (match-string 3 str)))
+        (if time
+            (format "https://youtu.be/%s?t=%s" id time)
+          (format "https://youtu.be/%s" id))))
+     ((string-match x-re str) (match-string 1 str))
+     ((string-match tw-re str)
+      (let ((id (or (match-string 1 str) (match-string 2 str)))
+            (time (match-string 3 str)))
+        (if time
+            (format "https://www.twitch.tv/videos/%s?t=%s" id time)
+          (format "https://www.twitch.tv/videos/%s" id))))
+     (t str))))
+#+END_SRC
+
+*** urls-cleanup
+#+BEGIN_SRC emacs-lisp
+(defun azlle/urls-cleanup ()
+  "選択範囲またはバッファ全体のURLを一括整形する。"
+  (interactive)
+  (let ((beg (if (use-region-p) (region-beginning) (point-min)))
+        (end (copy-marker (if (use-region-p) (region-end) (point-max)))))
+    (save-excursion
+      (goto-char beg)
+      (let ((combined-re (rx (or (seq "http" (opt "s") "://www.youtube.com/" (or "live/" "watch?v="))
+                                 (seq "http" (opt "s") "://" (or "x" "twitter") ".com/")
+                                 ;; /videos/ と /CHANNEL/video/ の両方をキャッチ
+                                 (seq "http" (opt "s") "://www.twitch.tv/"
+                                      (or "videos/"
+                                          (seq (one-or-more (not (any "/ \n]"))) "/video/"))))
+                             (one-or-more (not (any " \n]"))))))
+        (while (re-search-forward combined-re end t)
+          (replace-match (azlle/urls-cleanup-string (match-string 0)) t t))))
+    (set-marker end nil)
+    (message "URLs cleaned!")))
+#+END_SRC
+
+*** advice-add
+#+BEGIN_SRC emacs-lisp
+;; (advice-add 'insert-for-yank :filter-args
+;;             (lambda (args)
+;;               (cons (azlle/urls-cleanup-string (car args)) (cdr args))))
+#+END_SRC
+
+** sort-and-delete-duplicate-lines
+#+BEGIN_SRC emacs-lisp
+(defun azlle/sort-and-delete-duplicate-lines (beg end)
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (point-min) (point-max))))
+  (sort-lines nil beg end)
+  (delete-duplicate-lines beg end nil t))
+#+END_SRC
+
+** HyperlinkをWSL環境でも開けるように
+#+BEGIN_SRC emacs-lisp
+(when (file-exists-p "/mnt/c/Windows/System32/cmd.exe")
+  (setq browse-url-browser-function
+        (lambda (url &rest args)
+          (let ((escaped-url (replace-regexp-in-string "&" "^&" url)))
+            (call-process "/mnt/c/Windows/System32/cmd.exe" nil 0 nil
+                          "/c" "start" "" escaped-url)))))
+#+END_SRC
+
+** toggle-eat-window
+#+BEGIN_SRC emacs-lisp
+(defun azlle/toggle-eat-window ()
+  (interactive)
+  (if (get-buffer-window "*eat*")
+      (delete-window (get-buffer-window "*eat*"))
+    (progn
+      (split-window-below)
+      (other-window 1)
+      (eat))))
+#+END_SRC
+
+* Footer
+#+BEGIN_SRC emacs-lisp
+(setq file-name-handler-alist init/saved-file-name-handler-alist)
+
+(provide 'init)
+;;; init.el ends here
+#+END_SRC
