@@ -1,6 +1,7 @@
 {
   runCommandLocal,
   writeShellScriptBin,
+  coreutils,
 }:
 
 {
@@ -11,6 +12,7 @@
   manifestFile ? null,
   manifestFileName ? "twist-manifest.json",
 }:
+
 let
   initFile = runCommandLocal "twist-init.el" { } ''
     mkdir -p "$out"
@@ -20,20 +22,26 @@ let
       echo >> "$out/init.el"
     done
   '';
+
+  bin = "${coreutils}/bin";
 in
+
 writeShellScriptBin "emacs-twist" ''
   set -eu
 
-  initdir="$(mktemp -d "''${TMPDIR:-/tmp}/emacs-twist-XXX")"
+  # Use a 6-X template for POSIX-compliant mkdtemp(3) portability, and pin
+  # to coreutils' mktemp explicitly to avoid relying on whatever mktemp
+  # implementation (e.g. BusyBox) happens to be on $PATH at runtime.
+  initdir="$(${bin}/mktemp -d -p "''${TMPDIR:-/tmp}" emacs-twist-XXXXXX)"
   cleanup() {
-    rm -rf "$initdir"
+    ${bin}/rm -rf "$initdir"
   }
   trap cleanup EXIT
 
-  ln -s ${initFile}/init.el "$initdir/init.el"
-  ln -s ${earlyInitFile} "$initdir/early-init.el"
-  ${if assetsDir == null then "" else ''ln -s ${assetsDir} "$initdir/assets"''}
-  ${if manifestFile == null then "" else ''ln -s ${manifestFile} "$initdir/${manifestFileName}"''}
+  ${bin}/ln -s ${initFile}/init.el "$initdir/init.el"
+  ${bin}/ln -s ${earlyInitFile} "$initdir/early-init.el"
+  ${if assetsDir == null then "" else ''${bin}/ln -s ${assetsDir} "$initdir/assets"''}
+  ${if manifestFile == null then "" else ''${bin}/ln -s ${manifestFile} "$initdir/${manifestFileName}"''}
 
   ${emacsEnv}/bin/emacs --init-directory="$initdir" "$@"
 ''
