@@ -202,15 +202,15 @@
       "locked": {
         "lastModified": 1781216126,
         "narHash": "sha256-f1OICjF3pdRb89ackr20ulKJeTfGnQKXns2mgxOxE00=",
-        "ref": "refs/heads/master",
+        "owner": "emacs-twist",
+        "repo": "org-babel",
         "rev": "e39a14ee977472e15c1c3019b7e00c0da9ecbaa2",
-        "revCount": 57,
-        "type": "git",
-        "url": "https://git.melocy.cc/azlle/org-babel"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "https://git.melocy.cc/azlle/org-babel"
+        "owner": "emacs-twist",
+        "repo": "org-babel",
+        "type": "github"
       }
     },
     "root": {
@@ -233,15 +233,15 @@
       "locked": {
         "lastModified": 1785630346,
         "narHash": "sha256-P4uDiNP8pT6mUS0LaBkD8Wp7joDd1bLxwxRpycOPd24=",
-        "ref": "refs/heads/master",
+        "owner": "emacs-twist",
+        "repo": "twist.nix",
         "rev": "2748faf2f636967b5fc469f2be57953e447e63f4",
-        "revCount": 645,
-        "type": "git",
-        "url": "https://git.melocy.cc/azlle/twist.nix"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "https://git.melocy.cc/azlle/twist.nix"
+        "owner": "emacs-twist",
+        "repo": "twist.nix",
+        "type": "github"
       }
     }
   },

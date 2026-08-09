@@ -13,8 +13,8 @@
 
     emacs-overlay.url = "github:nix-community/emacs-overlay";
 
-    twist.url = "git+https://git.melocy.cc/azlle/twist.nix";
-    org-babel.url = "git+https://git.melocy.cc/azlle/org-babel";
+    twist.url = "github:emacs-twist/twist.nix";
+    org-babel.url = "github:emacs-twist/org-babel";
 
     elpa = {
       url = "github:elpa-mirrors/elpa";
