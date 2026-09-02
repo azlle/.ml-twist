@@ -208,22 +208,6 @@
         "type": "github"
       }
     },
-    "eat": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1738802687,
-        "narHash": "sha256-9xG2rMlaMFY77JzUQ3JFrc7XKILZSL8TbP/BkzvBvMk=",
-        "ref": "refs/heads/master",
-        "rev": "c8d54d649872bfe7b2b9f49ae5c2addbf12d3b99",
-        "revCount": 249,
-        "type": "git",
-        "url": "https://codeberg.org/akib/emacs-eat"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://codeberg.org/akib/emacs-eat"
-      }
-    },
     "gcmh": {
       "flake": false,
       "locked": {
@@ -238,6 +222,22 @@
       "original": {
         "type": "git",
         "url": "https://gitlab.com/koral/gcmh"
+      }
+    },
+    "ghostel": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788371589,
+        "narHash": "sha256-ZzRf/3QoG499S2bJhA+wnphqX0KDiY+Pe7yENKh8AV4=",
+        "owner": "dakra",
+        "repo": "ghostel",
+        "rev": "2bea18f3b52bf97d8222fea706da6fabdfc2cbb8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dakra",
+        "repo": "ghostel",
+        "type": "github"
       }
     },
     "hydra": {
@@ -495,8 +495,8 @@
         "ddskk": "ddskk",
         "denote": "denote",
         "diff-hl": "diff-hl",
-        "eat": "eat",
         "gcmh": "gcmh",
+        "ghostel": "ghostel",
         "hydra": "hydra",
         "kaolin-themes": "kaolin-themes",
         "llama": "llama",

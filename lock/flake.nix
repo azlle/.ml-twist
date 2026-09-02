@@ -79,15 +79,16 @@
       repo = "diff-hl";
       type = "github";
     };
-    eat = {
-      flake = false;
-      type = "git";
-      url = "https://codeberg.org/akib/emacs-eat";
-    };
     gcmh = {
       flake = false;
       type = "git";
       url = "https://gitlab.com/koral/gcmh";
+    };
+    ghostel = {
+      flake = false;
+      owner = "dakra";
+      repo = "ghostel";
+      type = "github";
     };
     hydra = {
       flake = false;
