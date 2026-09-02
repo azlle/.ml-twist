@@ -376,6 +376,14 @@
   (setq skk-share-private-jisyo t)
   (setq skk-azik-keyboard-type 'en)
 
+  ;; Emacs 32.1 の `current-time-list' 既定値 nil 化により
+  ;; `skk-setup-shared-private-jisyo' が listp エラーになる (ddskk#205, 未修正)。
+  (defun my/skk-with-legacy-current-time (orig &rest args)
+    (let ((current-time-list t))
+      (apply orig args)))
+  (advice-add 'skk-setup-shared-private-jisyo
+              :around #'my/skk-with-legacy-current-time)
+
   (defun my/skk-azik-load-hooks ()
     (dolist (str '("kv" "jv" "dv" "nv" "pv" "mv" "yv"
                    "sm" "zm" "dm" "fm" "kA" "kE"
