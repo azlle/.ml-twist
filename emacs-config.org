@@ -68,7 +68,7 @@
 (global-set-key (kbd "C-q") nil)
 (global-set-key (kbd "C-<right>") 'centaur-tabs-backward)
 (global-set-key (kbd "C-<left>") 'centaur-tabs-forward)
-(global-set-key (kbd "C-'") 'azlle/toggle-eat-window)
+(global-set-key (kbd "C-'") 'azlle/toggle-ghostel-window)
 #+END_SRC
 
 *** C-x
@@ -495,19 +495,23 @@
 #+END_SRC
 
 * Terminal
-** emacs-eat
+** ghostel
 #+BEGIN_SRC emacs-lisp
-(use-package eat
+(use-package ghostel
   :ensure t
+  :custom
+  ;; nix store 内のパッケージディレクトリには置けないので init 側に持つ
+  (ghostel-module-directory (expand-file-name "ghostel/" user-emacs-directory))
+  (ghostel-module-auto-install 'download)
   :config
-  (setopt eat-kill-buffer-on-exit t)
+  (setopt ghostel-kill-buffer-on-exit t)
 
   (add-hook 'kill-buffer-hook
             (lambda ()
-              (when (eq major-mode 'eat-mode)
-                (let ((eat-win (get-buffer-window (current-buffer))))
-                  (when (and eat-win (> (length (window-list)) 1))
-                    (delete-window eat-win)))))))
+              (when (eq major-mode 'ghostel-mode)
+                (let ((ghostel-win (get-buffer-window (current-buffer))))
+                  (when (and ghostel-win (> (length (window-list)) 1))
+                    (delete-window ghostel-win)))))))
 #+END_SRC
 
 * Editing
@@ -804,16 +808,18 @@
                           "/c" "start" "" escaped-url)))))
 #+END_SRC
 
-** toggle-eat-window
+** toggle-ghostel-window
 #+BEGIN_SRC emacs-lisp
-(defun azlle/toggle-eat-window ()
+(defun azlle/toggle-ghostel-window ()
   (interactive)
-  (if (get-buffer-window "*eat*")
-      (delete-window (get-buffer-window "*eat*"))
-    (progn
-      (split-window-below)
-      (other-window 1)
-      (eat))))
+  ;; ghostel 未ロード時は defcustom がまだ無いのでフォールバックする
+  (let ((buf (or (bound-and-true-p ghostel-buffer-name) "*ghostel*")))
+    (if (get-buffer-window buf)
+        (delete-window (get-buffer-window buf))
+      (progn
+        (split-window-below)
+        (other-window 1)
+        (ghostel)))))
 #+END_SRC
 
 * Footer
