@@ -506,6 +506,9 @@
   :config
   (setopt ghostel-kill-buffer-on-exit t)
 
+  ;; eat と同じ C-c C-k でターミナルを終了する
+  (keymap-set ghostel-mode-map "C-c C-k" #'azlle/ghostel-kill)
+
   (add-hook 'kill-buffer-hook
             (lambda ()
               (when (eq major-mode 'ghostel-mode)
@@ -820,6 +823,17 @@
         (split-window-below)
         (other-window 1)
         (ghostel)))))
+#+END_SRC
+
+** ghostel-kill
+#+BEGIN_SRC emacs-lisp
+(defun azlle/ghostel-kill ()
+  "ghostel のプロセスを終了する。バッファは `ghostel-kill-buffer-on-exit' 経由で閉じる。"
+  (interactive)
+  (let ((proc (get-buffer-process (current-buffer))))
+    (if (process-live-p proc)
+        (delete-process proc)
+      (kill-buffer))))
 #+END_SRC
 
 * Footer
