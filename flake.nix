@@ -44,7 +44,7 @@
       systems = [ "x86_64-linux" "aarch64-linux" ];
 
       perSystem =
-        { system, ... }:
+        { system, lib, ... }:
         let
           pkgs = import nixpkgs {
             inherit system;
@@ -65,6 +65,13 @@
           package = inputs.twist.lib.makeEnv {
             inherit pkgs;
             inherit (profile) emacsPackage lockDir initFiles exportManifest;
+
+            # use-package ではなく setup.el を使うので、パッケージの抽出も
+            # (:package NAME) を読むパーサに切り替える
+            initParser = inputs.twist.lib.parseSetup { inherit lib; } { };
+
+            # setup 自身は setup で宣言できないため明示的に足す
+            extraPackages = [ "setup" ];
 
             registries = import ./nix/registries.nix {
               inherit inputs;
