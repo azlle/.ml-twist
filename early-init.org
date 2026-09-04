@@ -21,6 +21,11 @@
 (push '(left-fringe . 1) default-frame-alist)
 (push '(right-fringe . 1) default-frame-alist)
 ;; (push '(fullscreen . maximized) default-frame-alist)
+;; face を作り直さずフレーム生成時に適用させる (init 側の set-face-attribute より速い)
+(push (cons 'font (if (file-exists-p "/etc/NIXOS")
+                      "Moralerspace Neon HW-13"
+                    "Moralerspace Neon HW-10"))
+      default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(menu-bar-lines . 0) default-frame-alist)
 
