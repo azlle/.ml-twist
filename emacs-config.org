@@ -503,6 +503,8 @@
   ;; nix store 内のパッケージディレクトリには置けないので init 側に持つ
   (ghostel-module-directory (expand-file-name "ghostel/" user-emacs-directory))
   (ghostel-module-auto-install 'download)
+  ;; Quail 系の Emacs Lisp 入力メソッド用 (ghostel 同梱、ddskk には効かない)
+  :hook (ghostel-mode . ghostel-ime-mode)
   :config
   (setopt ghostel-kill-buffer-on-exit t)
 
