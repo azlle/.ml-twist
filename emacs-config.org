@@ -66,8 +66,8 @@
 ;; マルチプレクサのキーをC-qにしたいので
 (global-set-key (kbd "C-S-q") 'quoted-insert)
 (global-set-key (kbd "C-q") nil)
-(global-set-key (kbd "C-<right>") 'centaur-tabs-backward)
-(global-set-key (kbd "C-<left>") 'centaur-tabs-forward)
+(global-set-key (kbd "C-<right>") 'next-buffer)
+(global-set-key (kbd "C-<left>") 'previous-buffer)
 (global-set-key (kbd "C-'") 'azlle/toggle-ghostel-window)
 #+END_SRC
 
@@ -150,25 +150,6 @@
   (moody-replace-mode-line-buffer-identification)
   ;; (moody-replace-vc-mode)
   (moody-replace-eldoc-minibuffer-message-function))
-#+END_SRC
-
-** centaur-tabs
-#+BEGIN_SRC emacs-lisp
-(use-package centaur-tabs
-  :ensure t
-  :demand
-  :config
-  (centaur-tabs-mode t)
-  (centaur-tabs-headline-match)
-  (setq centaur-tabs-style "wave"
-        centaur-tabs-height 32
-        ;; centaur-tabs-show-navigation-buttons t
-        centaur-tabs-set-icons t
-        centaur-tabs-icon-type 'nerd-icons
-        centaur-tabs-gray-out-icons 'buffer
-        centaur-tabs-set-modified-marker t
-        centaur-tabs-modified-marker "")
-  )
 #+END_SRC
 
 ** dashboard
