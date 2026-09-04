@@ -48,22 +48,6 @@
         "type": "github"
       }
     },
-    "centaur-tabs": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1781877336,
-        "narHash": "sha256-JvpS+U/9ToDRBq/KdW/zqnXurqd5ltq8AeAnzvNRzzM=",
-        "owner": "ema2159",
-        "repo": "centaur-tabs",
-        "rev": "24490495bce04bec2b8b3718f71f82e73a856602",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ema2159",
-        "repo": "centaur-tabs",
-        "type": "github"
-      }
-    },
     "compat": {
       "flake": false,
       "locked": {
@@ -464,28 +448,11 @@
         "type": "github"
       }
     },
-    "powerline": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1668110182,
-        "narHash": "sha256-a6LbnwmzUy43BLTjYW4DapK0sQSI38g6nsuPjd4tNkw=",
-        "owner": "milkypostman",
-        "repo": "powerline",
-        "rev": "c35c35bdf5ce2d992882c1f06f0f078058870d4a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "milkypostman",
-        "repo": "powerline",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "autothemer": "autothemer",
         "ccc": "ccc",
         "cdb": "cdb",
-        "centaur-tabs": "centaur-tabs",
         "compat": "compat",
         "cond-let": "cond-let",
         "consult": "consult",
@@ -511,11 +478,27 @@
         "nix-ts-mode": "nix-ts-mode",
         "orderless": "orderless",
         "org-superstar": "org-superstar",
-        "powerline": "powerline",
+        "setup": "setup",
         "twist": "twist",
         "vertico": "vertico",
         "vundo": "vundo",
         "with-editor": "with-editor"
+      }
+    },
+    "setup": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1761595148,
+        "narHash": "sha256-lLeKsLFf1+Bjk6ETq+0Nncw6DPOVxE49cAexdLAr/5U=",
+        "ref": "refs/heads/master",
+        "rev": "de9b86c6f29cf9888e911924ffc4ce47312320c3",
+        "revCount": 224,
+        "type": "git",
+        "url": "https://codeberg.org/pkal/setup.el"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://codeberg.org/pkal/setup.el"
       }
     },
     "twist": {

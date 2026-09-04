@@ -19,12 +19,6 @@
       repo = "ddskk";
       type = "github";
     };
-    centaur-tabs = {
-      flake = false;
-      owner = "ema2159";
-      repo = "centaur-tabs";
-      type = "github";
-    };
     compat = {
       flake = false;
       owner = "emacs-compat";
@@ -174,11 +168,10 @@
       repo = "org-superstar-mode";
       type = "github";
     };
-    powerline = {
+    setup = {
       flake = false;
-      owner = "milkypostman";
-      repo = "powerline";
-      type = "github";
+      type = "git";
+      url = "https://codeberg.org/pkal/setup.el";
     };
     twist = {
       flake = false;
