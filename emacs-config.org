@@ -252,6 +252,9 @@ as OPTS to `setup-define'."
 
 ;; --- 2. Vertico (一覧表示のUI) ---
 (setup (:package vertico)
+  ;; 候補の表示行数。max-mini-window-height は vertico 側で 1.0 に
+  ;; 上書きされるので、この値がそのままミニバッファの高さになる
+  (setopt vertico-count 20)
   (vertico-mode))
 
 ;; --- 3. Orderless (高度な絞り込み) ---
