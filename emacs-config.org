@@ -269,6 +269,18 @@ as OPTS to `setup-define'."
     (setq consult-preview-key 'any)))
 #+END_SRC
 
+** marginalia
+- 補完候補の右側に注釈を出す (バッファなら 状態フラグ / サイズ / メジャーモード / ファイルパス)
+- vertico が候補を並べ、consult が候補を作り、marginalia がその注釈を足す、という分担
+#+BEGIN_SRC emacs-lisp
+(setup (:package marginalia)
+  ;; 区切りは 3 箇所に入る (候補↔フラグ / フラグ↔サイズ / サイズ↔モード↔パス)
+  (setopt marginalia-separator " │ ")
+  ;; ミニバッファ内で注釈の詳しさを循環させる (詳細→簡易→組み込み→無し)
+  (keymap-set minibuffer-local-map "M-A" #'marginalia-cycle)
+  (marginalia-mode))
+#+END_SRC
+
 * Editor
 ** emacs
 #+BEGIN_SRC emacs-lisp

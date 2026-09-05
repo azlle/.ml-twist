@@ -126,6 +126,12 @@
       repo = "magit";
       type = "github";
     };
+    marginalia = {
+      flake = false;
+      owner = "minad";
+      repo = "marginalia";
+      type = "github";
+    };
     moody = {
       flake = false;
       owner = "tarsius";

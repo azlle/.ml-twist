@@ -336,6 +336,22 @@
         "type": "github"
       }
     },
+    "marginalia": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788173728,
+        "narHash": "sha256-A/GgnM98eQ4JzXWYFRca9XrcT3vRuqhcNZ6xeQHuMHI=",
+        "owner": "minad",
+        "repo": "marginalia",
+        "rev": "d76d7e36185ab552240c14fb08f7abcbf9a2910c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "minad",
+        "repo": "marginalia",
+        "type": "github"
+      }
+    },
     "moody": {
       "flake": false,
       "locked": {
@@ -471,6 +487,7 @@
         "magit": "magit",
         "magit-prime": "magit-prime",
         "magit-section": "magit-section",
+        "marginalia": "marginalia",
         "moody": "moody",
         "multiple-cursors": "multiple-cursors",
         "nerd-icons": "nerd-icons",
