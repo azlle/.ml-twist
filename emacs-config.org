@@ -156,7 +156,18 @@ as OPTS to `setup-define'."
   (:require kaolin-themes)
   ;; (load-theme 'kaolin-galaxy t)    ; 今のところ常用のヤツ
   ;; (load-theme 'kaolin-bubblegum t) ; 青色基調のヤツ
-  (load-theme 'kaolin-aurora t))      ; galaxyの緑版みたいな
+  (load-theme 'kaolin-aurora t)       ; galaxyの緑版みたいな
+
+  ;; Sync bright ANSI colors (ansi-color-bright-*), which kaolin-themes leaves untouched
+  (require 'ansi-color)
+  (cl-loop for face in '(ansi-color-bright-black ansi-color-bright-red
+                         ansi-color-bright-green ansi-color-bright-yellow
+                         ansi-color-bright-blue ansi-color-bright-magenta
+                         ansi-color-bright-cyan ansi-color-bright-white)
+           for i from 0
+           do (set-face-attribute face nil
+                                   :foreground (aref ansi-color-names-vector i)
+                                   :background (aref ansi-color-names-vector i))))
 #+END_SRC
 
 ** doom-modeline
