@@ -357,6 +357,17 @@ as OPTS to `setup-define'."
   (add-hook 'after-init-hook #'global-whitespace-mode))
 #+END_SRC
 
+** dired
+#+BEGIN_SRC emacs-lisp
+(setup dired
+  (setopt dired-listing-switches "-ahl --group-directories-first")
+  (setopt dired-vc-rename-file t)
+  (setopt dired-recursive-copies 'always)
+  (setopt dired-recursive-deletes 'top)
+  (setopt dired-mouse-drag-files t) ; Shiftキーと併用でMoveできるらしい
+  (add-hook 'dired-mode-hook (lambda () (display-line-numbers-mode -1))))
+#+END_SRC
+
 * 日本語入力
 ** ddskk
 #+BEGIN_SRC emacs-lisp
