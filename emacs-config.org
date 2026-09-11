@@ -203,9 +203,11 @@ as OPTS to `setup-define'."
   (require 'bookmark)
   (require 'project)
   (setq inhibit-startup-message t)
-  ;; grid.el handles all centering below; enlight's own (char-length-based)
-  ;; centering doesn't know about the embedded banner image's pixel width.
+  ;; We do all centering ourselves below; enlight's own centering measures
+  ;; the banner image (a single character with a `display' override) as
+  ;; 1 column wide / 1 line tall, ignoring its actual pixel dimensions.
   (setopt enlight-center-horizontally nil)
+  (setopt enlight-center-vertically nil)
 
   (defvar my/enlight-footer-messages
     '("「君らにはもう 二度と危険ってやつは訪れない」"
@@ -228,12 +230,20 @@ as OPTS to `setup-define'."
         ;; `display' override, and would eat a plain " " placeholder.
         (propertize "." 'display (create-image img-file)))))
 
+  (defun my/enlight-image-extra-lines (banner)
+    "Extra lines BANNER's image occupies beyond its own single logical line."
+    (if-let* ((img (and banner (get-text-property 0 'display banner))))
+        (max 0 (1- (ceiling (cdr (image-size img t)) (frame-char-height))))
+      0))
+
   (defun my/enlight-build-content ()
-    ;; A couple of columns of slack: at build time the selected window may
-    ;; not yet be *enlight*'s own (e.g. it still has line numbers on), so
-    ;; its reported width can be slightly off from what *enlight* ends up
+    ;; A couple of columns/lines of slack: at build time the selected window
+    ;; may not yet be *enlight*'s own (e.g. it still has line numbers on),
+    ;; so its reported size can be slightly off from what *enlight* ends up
     ;; with, causing the widest line to wrap by a column or two.
     (let* ((width (- (window-body-width (selected-window)) 3))
+           (height (window-body-height (selected-window)))
+           (banner (my/enlight-build-banner))
            (sections
             (seq-remove
              (lambda (section) (null (cdr section)))
@@ -248,25 +258,29 @@ as OPTS to `setup-define'."
                            collect (list name `(bookmark-jump ,name))))
                ("Projects"
                 ,@(cl-loop for root in (seq-take (project-known-project-roots) 5)
-                           collect (list (abbreviate-file-name root) `(dired ,root))))))))
-      (grid-make-column
-       (delq
-        nil
-        (list
-         (when-let* ((banner (my/enlight-build-banner)))
-           (list :content banner :width width :align 'center :margin '(0 0 1 0)))
-         (list :content (propertize "SUPER DUPER AMANATSU-CHAN!" 'face 'bold)
-               :width width :align 'center :margin '(0 0 1 0))
-         (when sections
-           (list :content (enlight-menu sections)
-                 :width width :align 'center :margin '(0 0 1 0)))
-         (list :content (propertize
-                         (or my/enlight-footer-message
-                             (setq my/enlight-footer-message
-                                   (nth (random (length my/enlight-footer-messages))
-                                        my/enlight-footer-messages)))
-                         'face 'italic)
-               :width width :align 'center))))))
+                           collect (list (abbreviate-file-name root) `(dired ,root)))))))
+           (body
+            (grid-make-column
+             (delq
+              nil
+              (list
+               (when banner
+                 (list :content banner :width width :align 'center :margin '(0 0 1 0)))
+               (list :content (propertize "SUPER DUPER AMANATSU-CHAN!" 'face 'bold)
+                     :width width :align 'center :margin '(0 0 1 0))
+               (when sections
+                 (list :content (enlight-menu sections)
+                       :width width :align 'center :margin '(0 0 1 0)))
+               (list :content (propertize
+                               (or my/enlight-footer-message
+                                   (setq my/enlight-footer-message
+                                         (nth (random (length my/enlight-footer-messages))
+                                              my/enlight-footer-messages)))
+                               'face 'italic)
+                     :width width :align 'center)))))
+           (body-lines (with-temp-buffer (insert body) (count-lines (point-min) (point-max))))
+           (top-pad (max 0 (/ (- height body-lines (my/enlight-image-extra-lines banner)) 2))))
+      (concat (make-string top-pad ?\n) body)))
 
   (defun my/enlight-refresh ()
     (customize-set-variable 'enlight-content (my/enlight-build-content)))
@@ -276,8 +290,16 @@ as OPTS to `setup-define'."
       (my/enlight-refresh)
       (enlight)))
 
+  (defun my/enlight-show ()
+    ;; `enlight' computes vertical centering from the *enlight* window's
+    ;; height, but that window doesn't exist yet on the first call (the
+    ;; buffer isn't shown anywhere until `enlight-open' below pops it up).
+    ;; Re-render once it actually has a window to measure.
+    (enlight-open)
+    (my/enlight-rerender))
+
   (add-hook 'after-init-hook #'my/enlight-refresh)
-  (add-hook 'emacs-startup-hook #'enlight-open)
+  (add-hook 'emacs-startup-hook #'my/enlight-show)
   (add-hook 'window-size-change-functions #'my/enlight-rerender)
   (add-hook 'enlight-mode-hook (lambda () (display-line-numbers-mode -1))))
 #+END_SRC
