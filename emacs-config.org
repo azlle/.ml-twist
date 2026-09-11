@@ -716,12 +716,12 @@ as OPTS to `setup-define'."
 ** diff-hl
 #+BEGIN_SRC emacs-lisp
 (setup (:package diff-hl)
+  (:require diff-hl)
   (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
   (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)
-  (:when-loaded
-    (global-diff-hl-mode)     ; diff-hlモードをグローバルに有効化
-    ;; (diff-hl-margin-mode)  ; フリンジではなくマージン領域に差分表示
-    ))
+  (global-diff-hl-mode)     ; diff-hlモードをグローバルに有効化
+  ;; (diff-hl-margin-mode)  ; フリンジではなくマージン領域に差分表示
+  )
 #+END_SRC
 
 ** magit
