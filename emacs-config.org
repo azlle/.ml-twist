@@ -741,7 +741,9 @@ as OPTS to `setup-define'."
      'org-babel-load-languages
      '((shell . t)))  ; nixはshell経由で実行
 
-    (add-to-list 'org-src-lang-modes '("nix" . nix-ts))))
+    (add-to-list 'org-src-lang-modes '("nix" . nix-ts))
+
+    (define-key org-mode-map (kbd "C-'") 'azlle/toggle-ghostel-window)))
 #+END_SRC
 
 ** org-superstar
