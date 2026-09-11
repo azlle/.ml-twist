@@ -193,32 +193,80 @@ as OPTS to `setup-define'."
   (moody-replace-eldoc-minibuffer-message-function))
 #+END_SRC
 
-** dashboard
+** enlight
 #+BEGIN_SRC emacs-lisp
-(setup (:package dashboard)
-  (:require dashboard)
+(setup (:package enlight)
+  (:require enlight)
+  (setup (:package grid))
+  (:require grid)
+  (require 'bookmark)
+  (require 'project)
   (setq inhibit-startup-message t)
-  (setq dashboard-center-content t)
-  (setq dashboard-vertically-center-content t)
-  (setq dashboard-items '((recents  . 5)
-                          (bookmarks . 5)
-                          (projects . 5)))
+  ;; grid.el handles all centering below; enlight's own (char-length-based)
+  ;; centering doesn't know about the embedded banner image's pixel width.
+  (setopt enlight-center-horizontally nil)
 
-  (setq dashboard-startup-banner
-        (if (and (display-graphic-p)
-                 (image-type-available-p 'png))
-            (expand-file-name "assets/banner.png" user-emacs-directory)
-          (expand-file-name "assets/banner.txt" user-emacs-directory)))
+  (defvar my/enlight-footer-messages
+    '("「君らにはもう 二度と危険ってやつは訪れない」"
+      "「ちゃんとしてますね 実に」"
+      "「SCIENCE IS ELEGANT」"
+      "「はっは──!! 飛び出たぜついに!!! 宇宙は俺のものだ!!!!!」"
+      "「……いや できるか?」「ああ できるね」"
+      "「スイカがゼロから 科学をやれば……!!!」"
+      "「たった 7年か 早かったな……!!」"))
 
-  (setq dashboard-banner-logo-title "SUPER DUPER AMANATSU-CHAN!")
-  (setq dashboard-footer-messages '("「君らにはもう 二度と危険ってやつは訪れない」"
-                                    "「ちゃんとしてますね 実に」"
-                                    "「SCIENCE IS ELEGANT」"
-                                    "「はっは──!! 飛び出たぜついに!!! 宇宙は俺のものだ!!!!!」"
-                                    "「……いや できるか?」「ああ できるね」"
-                                    "「スイカがゼロから 科学をやれば……!!!」"
-                                    "「たった 7年か 早かったな……!!」"))
-  (dashboard-setup-startup-hook))
+  (defun my/enlight-build-banner ()
+    (let ((img-file (expand-file-name "assets/banner.png" user-emacs-directory)))
+      (when (and (display-graphic-p) (image-type-available-p 'png) (file-exists-p img-file))
+        ;; Use a non-whitespace placeholder char: grid.el's alignment logic
+        ;; calls `delete-horizontal-space', which strips literal space
+        ;; characters based on the underlying buffer text, ignoring any
+        ;; `display' override, and would eat a plain " " placeholder.
+        (propertize "." 'display (create-image img-file)))))
+
+  (defun my/enlight-build-content ()
+    ;; A couple of columns of slack: at build time the selected window may
+    ;; not yet be *enlight*'s own (e.g. it still has line numbers on), so
+    ;; its reported width can be slightly off from what *enlight* ends up
+    ;; with, causing the widest line to wrap by a column or two.
+    (let* ((width (- (window-body-width (selected-window)) 3))
+           (sections
+            (seq-remove
+             (lambda (section) (null (cdr section)))
+             `(("Recent Files"
+                ,@(cl-loop for file in (seq-take recentf-list 5)
+                           for i from 1
+                           collect (list (abbreviate-file-name file)
+                                         `(find-file ,file)
+                                         (number-to-string i))))
+               ("Bookmarks"
+                ,@(cl-loop for name in (seq-take (bookmark-all-names) 5)
+                           collect (list name `(bookmark-jump ,name))))
+               ("Projects"
+                ,@(cl-loop for root in (seq-take (project-known-project-roots) 5)
+                           collect (list (abbreviate-file-name root) `(dired ,root))))))))
+      (grid-make-column
+       (delq
+        nil
+        (list
+         (when-let* ((banner (my/enlight-build-banner)))
+           (list :content banner :width width :align 'center :margin '(0 0 1 0)))
+         (list :content (propertize "SUPER DUPER AMANATSU-CHAN!" 'face 'bold)
+               :width width :align 'center :margin '(0 0 1 0))
+         (when sections
+           (list :content (enlight-menu sections)
+                 :width width :align 'center :margin '(0 0 1 0)))
+         (list :content (propertize (nth (random (length my/enlight-footer-messages))
+                                          my/enlight-footer-messages)
+                                     'face 'italic)
+               :width width :align 'center))))))
+
+  (defun my/enlight-refresh ()
+    (customize-set-variable 'enlight-content (my/enlight-build-content)))
+
+  (add-hook 'after-init-hook #'my/enlight-refresh)
+  (add-hook 'emacs-startup-hook #'enlight-open)
+  (add-hook 'enlight-mode-hook (lambda () (display-line-numbers-mode -1))))
 #+END_SRC
 
 * Completion

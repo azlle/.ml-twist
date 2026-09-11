@@ -55,12 +55,6 @@
       repo = "dash.el";
       type = "github";
     };
-    dashboard = {
-      flake = false;
-      owner = "emacs-dashboard";
-      repo = "dashboard";
-      type = "github";
-    };
     ddskk = {
       flake = false;
       owner = "skk-dev";
@@ -85,6 +79,12 @@
       repo = "dirvish";
       type = "github";
     };
+    enlight = {
+      flake = false;
+      owner = "ichernyshovvv";
+      repo = "enlight";
+      type = "github";
+    };
     gcmh = {
       flake = false;
       type = "git";
@@ -94,6 +94,12 @@
       flake = false;
       owner = "dakra";
       repo = "ghostel";
+      type = "github";
+    };
+    grid = {
+      flake = false;
+      owner = "ichernyshovvv";
+      repo = "grid.el";
       type = "github";
     };
     hydra = {

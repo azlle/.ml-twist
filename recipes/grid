@@ -1,0 +1,2 @@
+(grid :fetcher github
+      :repo "ichernyshovvv/grid.el")

@@ -144,22 +144,6 @@
         "type": "github"
       }
     },
-    "dashboard": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1781858012,
-        "narHash": "sha256-zkQyzOuJzJroDYNZXY9LglYsA7YFztKk2JYJrS4MlPk=",
-        "owner": "emacs-dashboard",
-        "repo": "dashboard",
-        "rev": "8642af9db8c996530ffaed1f56fe95c68b96a36d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "emacs-dashboard",
-        "repo": "dashboard",
-        "type": "github"
-      }
-    },
     "ddskk": {
       "flake": false,
       "locked": {
@@ -224,6 +208,22 @@
         "type": "github"
       }
     },
+    "enlight": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1737509484,
+        "narHash": "sha256-VyVZrQsd4A4tZUYqIgqqtLTy8f/smoHxD3tL63qDUy4=",
+        "owner": "ichernyshovvv",
+        "repo": "enlight",
+        "rev": "97517735692c5fe8706f9051c005f98c6082dd65",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ichernyshovvv",
+        "repo": "enlight",
+        "type": "github"
+      }
+    },
     "gcmh": {
       "flake": false,
       "locked": {
@@ -253,6 +253,22 @@
       "original": {
         "owner": "dakra",
         "repo": "ghostel",
+        "type": "github"
+      }
+    },
+    "grid": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1758407945,
+        "narHash": "sha256-pIeUrTSjiSqRU2Xul/lJN/vlHgpZO8/vVAiiOFNdkNs=",
+        "owner": "ichernyshovvv",
+        "repo": "grid.el",
+        "rev": "084b75fbdfd1ebaa3ab5a3ab7800343aceee92ae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ichernyshovvv",
+        "repo": "grid.el",
         "type": "github"
       }
     },
@@ -523,13 +539,14 @@
         "consult": "consult",
         "corfu": "corfu",
         "dash": "dash",
-        "dashboard": "dashboard",
         "ddskk": "ddskk",
         "denote": "denote",
         "diff-hl": "diff-hl",
         "dirvish": "dirvish",
+        "enlight": "enlight",
         "gcmh": "gcmh",
         "ghostel": "ghostel",
+        "grid": "grid",
         "hydra": "hydra",
         "inheritenv": "inheritenv",
         "kaolin-themes": "kaolin-themes",
