@@ -462,7 +462,6 @@ as OPTS to `setup-define'."
 
 *** yank
 #+BEGIN_SRC emacs-lisp
-  (require 'dirvish-yank)
   (setopt dirvish-yank-sources 'all)
   (:with-map dirvish-mode-map
     (:bind "y" dirvish-yank-menu))
@@ -470,7 +469,6 @@ as OPTS to `setup-define'."
 
 *** history
 #+BEGIN_SRC emacs-lisp
-  (require 'dirvish-history)
   (:with-map dirvish-mode-map
     (:bind "[" dirvish-history-go-backward
            "]" dirvish-history-go-forward
@@ -479,11 +477,11 @@ as OPTS to `setup-define'."
 
 *** quick-access
 #+BEGIN_SRC emacs-lisp
-  (require 'dirvish-quick-access)
-  (setopt dirvish-quick-access-entries
-          '(("h" "~/" "Home")
-            ("c" "~/.ml-twist/" "Emacs config (twist)")
-            ("d" "~/Documents/org-docs/denote/" "Denote"))))
+  (with-eval-after-load 'dirvish-quick-access
+    (setopt dirvish-quick-access-entries
+            '(("h" "~/" "Home")
+              ("c" "~/.ml-twist/" "Emacs config (twist)")
+              ("d" "~/Documents/org-docs/denote/" "Denote")))))
 #+END_SRC
 
 ** zoxide
