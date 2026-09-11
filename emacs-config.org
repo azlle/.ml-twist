@@ -94,6 +94,7 @@ as OPTS to `setup-define'."
 (global-set-key (kbd "C-x c")     'hydra-claude-code/body)
 (global-set-key (kbd "C-x d")     'dirvish)
 (global-set-key (kbd "C-x g")     'magit-status)
+(global-set-key (kbd "C-x m")     'my/hydra-multiple-cursors)
 (global-set-key (kbd "C-x u")     'vundo)
 #+END_SRC
 
@@ -102,7 +103,6 @@ as OPTS to `setup-define'."
 (global-set-key (kbd "C-c a")     'org-agenda)
 (global-set-key (kbd "C-c c")     'org-capture)
 (global-set-key (kbd "C-c l")     'org-store-link)
-(global-set-key (kbd "C-c m")     'hydra-multiple-cursors/body)
 (global-set-key (kbd "C-c n b")   'denote-backlinks)
 (global-set-key (kbd "C-c n f")   'denote-open-or-create)
 (global-set-key (kbd "C-c n l")   'denote-link)
@@ -783,6 +783,15 @@ Claude Code
   ("<down-mouse-1>" ignore)
   ("<drag-mouse-1>" ignore)
   ("q" nil))
+
+(defun my/hydra-multiple-cursors ()
+  "Load multiple-cursors.el on first use, then show its hydra.
+Needed because the hydra's hint string calls `mc/num-cursors'
+directly when rendering, before any head (which would otherwise
+autoload the package on its own) gets pressed."
+  (interactive)
+  (require 'multiple-cursors)
+  (hydra-multiple-cursors/body))
 #+END_SRC
 
 ** vundo
