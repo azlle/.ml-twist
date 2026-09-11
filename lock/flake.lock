@@ -48,6 +48,22 @@
         "type": "github"
       }
     },
+    "claude-code": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777579222,
+        "narHash": "sha256-5QJrWIu4EgnHcOqMwlrs2JBBx7aI9OaSJswesr6Apfk=",
+        "owner": "stevemolitor",
+        "repo": "claude-code.el",
+        "rev": "03199df8b3a1e9cd4857f0851f7a912ba524aff3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "stevemolitor",
+        "repo": "claude-code.el",
+        "type": "github"
+      }
+    },
     "compat": {
       "flake": false,
       "locked": {
@@ -253,6 +269,22 @@
       "original": {
         "owner": "abo-abo",
         "repo": "hydra",
+        "type": "github"
+      }
+    },
+    "inheritenv": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1732024534,
+        "narHash": "sha256-qzM7uepVOTQyxJmngiePHVXFdeOw59wGvwiKl3xEDT4=",
+        "owner": "purcell",
+        "repo": "inheritenv",
+        "rev": "b9e67cc20c069539698a9ac54d0e6cc11e616c6f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "purcell",
+        "repo": "inheritenv",
         "type": "github"
       }
     },
@@ -485,6 +517,7 @@
         "autothemer": "autothemer",
         "ccc": "ccc",
         "cdb": "cdb",
+        "claude-code": "claude-code",
         "compat": "compat",
         "cond-let": "cond-let",
         "consult": "consult",
@@ -498,6 +531,7 @@
         "gcmh": "gcmh",
         "ghostel": "ghostel",
         "hydra": "hydra",
+        "inheritenv": "inheritenv",
         "kaolin-themes": "kaolin-themes",
         "llama": "llama",
         "lv": "lv",

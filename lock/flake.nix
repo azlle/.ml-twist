@@ -19,6 +19,12 @@
       repo = "ddskk";
       type = "github";
     };
+    claude-code = {
+      flake = false;
+      owner = "stevemolitor";
+      repo = "claude-code.el";
+      type = "github";
+    };
     compat = {
       flake = false;
       owner = "emacs-compat";
@@ -94,6 +100,12 @@
       flake = false;
       owner = "abo-abo";
       repo = "hydra";
+      type = "github";
+    };
+    inheritenv = {
+      flake = false;
+      owner = "purcell";
+      repo = "inheritenv";
       type = "github";
     };
     kaolin-themes = {
