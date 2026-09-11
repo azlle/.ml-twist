@@ -86,45 +86,51 @@ as OPTS to `setup-define'."
 - 各パッケージ本体のコマンド/Emacs組み込みコマンドへのグローバルバインドはここに集約する
 - corfu/companyのようにローカルキーマップ(:map)へのバインドはglobal-set-keyで代替できないため、各パッケージのuse-package定義内に残す
 ** Global
-*** Special Keys
-#+BEGIN_SRC emacs-lisp
-;; emacs本体
-(global-set-key (kbd "<f1>") 'help-command)
-(global-set-key (kbd "C-h") 'backward-delete-char-untabify)
-;; マルチプレクサのキーをC-qにしたいので
-(global-set-key (kbd "C-S-q") 'quoted-insert)
-(global-set-key (kbd "C-q") nil)
-(global-set-key (kbd "C-<right>") 'next-buffer)
-(global-set-key (kbd "C-<left>") 'previous-buffer)
-(global-set-key (kbd "C-'") 'azlle/toggle-ghostel-window)
-#+END_SRC
-
 *** C-x
 #+BEGIN_SRC emacs-lisp
 ;; consult
-(global-set-key (kbd "C-x b") 'consult-buffer)
-(global-set-key (kbd "C-x C-j") 'skk-mode)
-(global-set-key (kbd "C-x u") 'vundo)
-(global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key (kbd "C-x C-j")   'skk-mode)
+(global-set-key (kbd "C-x b")     'consult-buffer)
+(global-set-key (kbd "C-x g")     'magit-status)
+(global-set-key (kbd "C-x u")     'vundo)
 #+END_SRC
 
 *** C-c
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-c r") 'consult-recent-file)
-(global-set-key (kbd "C-c n n") 'denote)
-(global-set-key (kbd "C-c n f") 'denote-open-or-create)
-(global-set-key (kbd "C-c n l") 'denote-link)
-(global-set-key (kbd "C-c n b") 'denote-backlinks)
-(global-set-key (kbd "C-c n r") 'denote-rename-file)
-(global-set-key (kbd "C-c l") 'org-store-link)
-(global-set-key (kbd "C-c a") 'org-agenda)
-(global-set-key (kbd "C-c c") 'org-capture)
-(global-set-key (kbd "C-c m") 'hydra-multiple-cursors/body)
+(global-set-key (kbd "C-c a")     'org-agenda)
+(global-set-key (kbd "C-c c")     'org-capture)
+(global-set-key (kbd "C-c l")     'org-store-link)
+(global-set-key (kbd "C-c m")     'hydra-multiple-cursors/body)
+(global-set-key (kbd "C-c n b")   'denote-backlinks)
+(global-set-key (kbd "C-c n f")   'denote-open-or-create)
+(global-set-key (kbd "C-c n l")   'denote-link)
+(global-set-key (kbd "C-c n n")   'denote)
+(global-set-key (kbd "C-c n r")   'denote-rename-file)
+(global-set-key (kbd "C-c r")     'consult-recent-file)
 #+END_SRC
 
 *** M-*
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "M-s l") 'consult-line) ; 行検索 (C-s の強化版)
+(global-set-key (kbd "M-s l")     'consult-line)
+#+END_SRC
+
+*** Others
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "<f1>")      'help-command)
+(global-set-key (kbd "C-h")       'backward-delete-char-untabify)
+
+(global-set-key (kbd "C-S-q")     'quoted-insert)
+(global-set-key (kbd "C-q")       nil)
+
+(global-set-key (kbd "C-<left>")  'previous-buffer)
+(global-set-key (kbd "C-<right>") 'next-buffer)
+
+(global-set-key (kbd "C-'")       'azlle/toggle-ghostel-window)
+
+(global-unset-key (kbd "C-<down-mouse-1>"))
+(global-unset-key (kbd "C-<down-mouse-2>"))
+(global-unset-key (kbd "C-<down-mouse-3>"))
+(global-unset-key (kbd "S-<down-mouse-1>"))
 #+END_SRC
 
 * Appearance
