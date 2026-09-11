@@ -89,8 +89,10 @@ as OPTS to `setup-define'."
 *** C-x
 #+BEGIN_SRC emacs-lisp
 ;; consult
+(global-set-key (kbd "C-x C-d")   'dirvish-quick-access)
 (global-set-key (kbd "C-x C-j")   'skk-mode)
 (global-set-key (kbd "C-x b")     'consult-buffer)
+(global-set-key (kbd "C-x d")     'dirvish)
 (global-set-key (kbd "C-x g")     'magit-status)
 (global-set-key (kbd "C-x u")     'vundo)
 #+END_SRC
@@ -374,6 +376,104 @@ as OPTS to `setup-define'."
 (setopt wdired-allow-to-change-permissions 'advanced)
 (define-key dired-mode-map (kbd "C-x C-q") nil)
 (define-key dired-mode-map (kbd "r") 'dired-toggle-read-only)
+#+END_SRC
+
+** dirvish
+*** activate
+#+BEGIN_SRC emacs-lisp
+(setup (:package dirvish)
+  (dirvish-override-dired-mode)
+#+END_SRC
+
+*** current-line highlight
+#+BEGIN_SRC emacs-lisp
+  (require 'color)
+  (set-face-attribute 'dirvish-hl-line nil
+                       :background (color-lighten-name
+                                    (face-attribute 'default :background nil t) 15)
+                       :extend t)
+#+END_SRC
+
+*** wdired fixup
+- Maximize root pane in wdired mode, with full details.
+#+BEGIN_SRC emacs-lisp
+  (defvar-local my/wdired-layout-was-shown nil)
+
+  (defun my/wdired-enter-fixup (&rest _)
+    (when-let* ((dv (dirvish-curr)) ((dv-curr-layout dv)))
+      (setq my/wdired-layout-was-shown t)
+      (dirvish-layout-toggle))
+    (dired-hide-details-mode -1)
+    (let (dirvish-hide-cursor) (dirvish--maybe-toggle-cursor 'hollow)))
+
+  (defun my/wdired-exit-fixup (&rest _)
+    (when (and my/wdired-layout-was-shown (dirvish-curr))
+      (setq my/wdired-layout-was-shown nil)
+      (dirvish-layout-toggle))
+    (dirvish--maybe-toggle-details))
+  (advice-add 'wdired-change-to-wdired-mode :after #'my/wdired-enter-fixup)
+  (advice-add 'wdired-change-to-dired-mode :after #'my/wdired-exit-fixup)
+#+END_SRC
+
+*** attributes / mode-line / layout
+#+BEGIN_SRC emacs-lisp
+  (setopt dirvish-attributes
+          '(nerd-icons file-time file-size collapse subtree-state vc-state))
+
+  (setopt dirvish-mode-line-format
+          '(:left (sort " | " file-modes " | " symlink) :right (omit yank index)))
+
+  (setopt dirvish-default-layout '(1 0.15 0.4))
+#+END_SRC
+
+*** simple preview
+- Use ls -1a for directories in the preview pane.
+#+BEGIN_SRC emacs-lisp
+  (defvar my/dirvish-preview-ls-switches "-1a --group-directories-first --color=always")
+  (defun my/dirvish-preview-dired-simple (file &rest _)
+    (when (file-directory-p file)
+      `(shell . (let ((non-essential t)
+                      (enable-dir-local-variables nil)
+                      (enable-local-variables :safe))
+                  (setq dired-listing-switches ,my/dirvish-preview-ls-switches)
+                  (setq dired-use-ls-dired nil)
+                  (with-current-buffer (dired-noselect ,file)
+                    (message "\n%s" (buffer-string)))))))
+  (advice-add 'dirvish-dired-dp :override #'my/dirvish-preview-dired-simple)
+#+END_SRC
+
+*** line numbers off in side panes
+#+BEGIN_SRC emacs-lisp
+  (dolist (hook '(dirvish-directory-view-mode-hook
+                  dirvish-special-preview-mode-hook
+                  dirvish-misc-mode-hook))
+    (add-hook hook (lambda () (display-line-numbers-mode -1))))
+#+END_SRC
+
+*** yank
+#+BEGIN_SRC emacs-lisp
+  (require 'dirvish-yank)
+  (setopt dirvish-yank-sources 'all)
+  (:with-map dirvish-mode-map
+    (:bind "y" dirvish-yank-menu))
+#+END_SRC
+
+*** history
+#+BEGIN_SRC emacs-lisp
+  (require 'dirvish-history)
+  (:with-map dirvish-mode-map
+    (:bind "[" dirvish-history-go-backward
+           "]" dirvish-history-go-forward
+           "b" dired-up-directory))
+#+END_SRC
+
+*** quick-access
+#+BEGIN_SRC emacs-lisp
+  (require 'dirvish-quick-access)
+  (setopt dirvish-quick-access-entries
+          '(("h" "~/" "Home")
+            ("c" "~/.ml-twist/" "Emacs config (twist)")
+            ("d" "~/Documents/org-docs/denote/" "Denote"))))
 #+END_SRC
 
 * 日本語入力
