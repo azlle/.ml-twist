@@ -216,6 +216,9 @@ as OPTS to `setup-define'."
       "「スイカがゼロから 科学をやれば……!!!」"
       "「たった 7年か 早かったな……!!」"))
 
+  ;; Picked once per Emacs session (not on every resize-triggered rebuild).
+  (defvar my/enlight-footer-message nil)
+
   (defun my/enlight-build-banner ()
     (let ((img-file (expand-file-name "assets/banner.png" user-emacs-directory)))
       (when (and (display-graphic-p) (image-type-available-p 'png) (file-exists-p img-file))
@@ -257,16 +260,25 @@ as OPTS to `setup-define'."
          (when sections
            (list :content (enlight-menu sections)
                  :width width :align 'center :margin '(0 0 1 0)))
-         (list :content (propertize (nth (random (length my/enlight-footer-messages))
-                                          my/enlight-footer-messages)
-                                     'face 'italic)
+         (list :content (propertize
+                         (or my/enlight-footer-message
+                             (setq my/enlight-footer-message
+                                   (nth (random (length my/enlight-footer-messages))
+                                        my/enlight-footer-messages)))
+                         'face 'italic)
                :width width :align 'center))))))
 
   (defun my/enlight-refresh ()
     (customize-set-variable 'enlight-content (my/enlight-build-content)))
 
+  (defun my/enlight-rerender (&optional frame)
+    (when (get-buffer-window "*enlight*" (or frame t))
+      (my/enlight-refresh)
+      (enlight)))
+
   (add-hook 'after-init-hook #'my/enlight-refresh)
   (add-hook 'emacs-startup-hook #'enlight-open)
+  (add-hook 'window-size-change-functions #'my/enlight-rerender)
   (add-hook 'enlight-mode-hook (lambda () (display-line-numbers-mode -1))))
 #+END_SRC
 
