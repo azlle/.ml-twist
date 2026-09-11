@@ -487,6 +487,14 @@ as OPTS to `setup-define'."
             ("d" "~/Documents/org-docs/denote/" "Denote"))))
 #+END_SRC
 
+** zoxide
+#+BEGIN_SRC emacs-lisp
+(setup (:package zoxide)
+  (:require zoxide)
+  (setopt zoxide-travel-callback-function #'dirvish))
+(global-set-key (kbd "C-x j") 'zoxide-travel)
+#+END_SRC
+
 * 日本語入力
 ** ddskk
 #+BEGIN_SRC emacs-lisp
