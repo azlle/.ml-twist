@@ -85,8 +85,7 @@ as OPTS to `setup-define'."
 * Keybindings
 - 各パッケージ本体のコマンド/Emacs組み込みコマンドへのグローバルバインドはここに集約する
 - corfu/companyのようにローカルキーマップ(:map)へのバインドはglobal-set-keyで代替できないため、各パッケージのuse-package定義内に残す
-** Global
-*** C-x
+** C-x
 #+BEGIN_SRC emacs-lisp
 ;; consult
 (global-set-key (kbd "C-x C-d")   'dirvish-quick-access)
@@ -97,7 +96,7 @@ as OPTS to `setup-define'."
 (global-set-key (kbd "C-x u")     'vundo)
 #+END_SRC
 
-*** C-c
+** C-c
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-c a")     'org-agenda)
 (global-set-key (kbd "C-c c")     'org-capture)
@@ -111,12 +110,12 @@ as OPTS to `setup-define'."
 (global-set-key (kbd "C-c r")     'consult-recent-file)
 #+END_SRC
 
-*** M-*
+** M-*
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "M-s l")     'consult-line)
 #+END_SRC
 
-*** Others
+** Others
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "<f1>")      'help-command)
 (global-set-key (kbd "C-h")       'backward-delete-char-untabify)
