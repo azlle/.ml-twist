@@ -639,6 +639,16 @@ as OPTS to `setup-define'."
                       (delete-window ghostel-win))))))))
 #+END_SRC
 
+** claude-code
+#+BEGIN_SRC emacs-lisp
+(setup (:package inheritenv))
+(setup (:package claude-code)
+  (:require claude-code)
+  (setopt claude-code-terminal-backend 'ghostel)
+  (claude-code-mode)
+  (global-set-key (kbd "C-S-c") claude-code-command-map))
+#+END_SRC
+
 * Editing
 ** multiple-cursors
 #+BEGIN_SRC emacs-lisp
