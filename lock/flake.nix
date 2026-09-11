@@ -73,6 +73,12 @@
       repo = "diff-hl";
       type = "github";
     };
+    dirvish = {
+      flake = false;
+      owner = "alexluigit";
+      repo = "dirvish";
+      type = "github";
+    };
     gcmh = {
       flake = false;
       type = "git";

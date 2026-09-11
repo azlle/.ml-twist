@@ -192,6 +192,22 @@
         "type": "github"
       }
     },
+    "dirvish": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784992843,
+        "narHash": "sha256-1oVMZKNhPNCWfL3ksSPCF6N7KAIThxww38eGPru2W+E=",
+        "owner": "alexluigit",
+        "repo": "dirvish",
+        "rev": "bf164ee21e128837ede59be03836a9900c4a41be",
+        "type": "github"
+      },
+      "original": {
+        "owner": "alexluigit",
+        "repo": "dirvish",
+        "type": "github"
+      }
+    },
     "gcmh": {
       "flake": false,
       "locked": {
@@ -478,6 +494,7 @@
         "ddskk": "ddskk",
         "denote": "denote",
         "diff-hl": "diff-hl",
+        "dirvish": "dirvish",
         "gcmh": "gcmh",
         "ghostel": "ghostel",
         "hydra": "hydra",
