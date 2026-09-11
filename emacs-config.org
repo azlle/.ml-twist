@@ -495,19 +495,12 @@ as OPTS to `setup-define'."
 ** ghostel
 #+BEGIN_SRC emacs-lisp
 (setup (:package ghostel)
-  ;; nix store 内のパッケージディレクトリには置けないので init 側に持つ
   (setopt ghostel-module-directory (expand-file-name "ghostel/" user-emacs-directory))
   (setopt ghostel-module-auto-install 'download)
-  ;; Quail 系の Emacs Lisp 入力メソッド用 (ghostel 同梱、ddskk には効かない)
-  ;; :hook は現在の feature (ghostel) の hook = ghostel-mode-hook に足す
-  (:hook ghostel-ime-mode)
 
   (:when-loaded
     (setopt ghostel-kill-buffer-on-exit t)
-
-    ;; eat と同じ C-c C-k でターミナルを終了する
     (keymap-set ghostel-mode-map "C-c C-k" #'azlle/ghostel-kill)
-
     (add-hook 'kill-buffer-hook
               (lambda ()
                 (when (eq major-mode 'ghostel-mode)
