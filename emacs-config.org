@@ -36,18 +36,14 @@
 (package-initialize)
 #+END_SRC
 
-** use-package
+** setup.el
 #+BEGIN_SRC emacs-lisp
-;; setup.el のブートストラップ。
-;; `:package' は setup.el 組み込みだと package.el を呼んでしまうので、
-;; 何もしない no-op に差し替える。twist が init.el を静的に読んで
-;; `(:package NAME)' からビルド対象を決めるので、宣言としてだけ意味を持つ。
 (eval-when-compile
   (require 'setup)
   (require 'cl-lib)
 
-  ;; https://www.emacswiki.org/emacs/SetupEl の snippet と同じもの
-  (defmacro define-setup-macro (name signature &rest body)
+  ;; From https://www.emacswiki.org/emacs/SetupEl#h5o-4
+  (defmacro defsetup (name signature &rest body)
     "Shorthand for `setup-define'.
 NAME is the name of the local macro.  SIGNATURE is used as the
 argument list for FN.  If BODY starts with a string, use this as
@@ -65,10 +61,19 @@ as OPTS to `setup-define'."
          (cl-function (lambda ,signature ,@body))
          ,@opts)))
 
-  (define-setup-macro :package (package)
-    "Fake installation of PACKAGE.  twist がビルドするので何もしない。"
+  ;; The following are adapted from akirak/emacs-config
+  ;; (MIT, Copyright (C) 2023-2025 Akira Komamura)
+  ;; https://github.com/akirak/emacs-config/blob/master/emacs-config.org
+  (defsetup :package (package)
+    "Fake installation of PACKAGE."
     :repeatable t
-    :shorthand cadr))
+    :shorthand cadr)
+
+  (defsetup :repeat (keymap &rest commands)
+    "Set the repeat map of commands."
+    :indent 1
+    (dolist (cmd commands)
+      (put cmd 'repeat-map keymap))))
 #+END_SRC
 
 ** twist
@@ -300,6 +305,7 @@ as OPTS to `setup-define'."
 (add-to-list 'default-frame-alist '(undecorated . t))
 (set-frame-parameter nil 'undecorated t)
 (global-display-line-numbers-mode t)
+(repeat-mode 1)
 ;; default face のフォントは early-init.org の `default-frame-alist' で指定している
 
 ;; ;; japanese-jisx0208, japanese-jisx0213.2004-1
