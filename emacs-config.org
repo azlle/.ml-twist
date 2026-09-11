@@ -254,37 +254,6 @@ which would center each line independently."
         (max 0 (1- (ceiling (cdr (image-size img t)) (frame-char-height))))
       0))
 
-  (defun my/enlight-center-text (text width)
-    "Center TEXT within WIDTH columns using its actual rendered pixel
-width (`string-pixel-width'), not a char-count/column estimate.
-Emacs's column accounting assumes a fixed width per character from a
-table of \"wide\"/\"narrow\" East Asian character classes, which doesn't
-always match how a given font actually renders ambiguous-width CJK
-punctuation -- so char-based centering (what grid.el's :align does)
-can end up visibly off for Japanese text even though the math checks
-out in columns."
-    (let* ((char-w (frame-char-width))
-           ;; Round to a whole-character budget first, then split leading
-           ;; vs trailing with ceiling/floor -- the same convention grid.el
-           ;; itself uses (`grid--align-line') for every other centered
-           ;; line. Splitting via a single `round' on the halved value
-           ;; instead doesn't always agree with that (banker's rounding on
-           ;; an exact .5 can tip either way), so the two would disagree on
-           ;; some lines by a column, visible as a slightly lopsided edge.
-           (space (max 0 (round (/ (- (* width char-w) (string-pixel-width text))
-                                    (float char-w)))))
-           (lead (ceiling space 2))
-           (trail (floor space 2)))
-      ;; Pad both sides ourselves instead of leaving the trailing side to
-      ;; grid.el's own end-of-line fill (this box gets no :align, since
-      ;; :align would re-center per grid's char-width math and undo the
-      ;; leading pad computed above): grid measures the trailing gap via
-      ;; `current-column' against the *unpadded* line as read back from its
-      ;; own temp buffer, which doesn't necessarily agree with the pixel
-      ;; width `string-pixel-width' saw this text as when the leading pad
-      ;; was computed, leaving a small gap in the trailing padding.
-      (concat (make-string lead ?\s) text (make-string trail ?\s))))
-
   (defun my/enlight-space-out-menu (text)
     "Insert a blank line before each section heading in TEXT (the
 `enlight-menu' output for multiple sections), except the first.
@@ -355,15 +324,13 @@ moves within buttons sharing the current button's `menu-id')."
             :width width :align 'center)))
 
   (defun my/enlight-footer-box (width)
-    (list :content (my/enlight-center-text
-                    (propertize
-                     (or my/enlight-footer-message
-                         (setq my/enlight-footer-message
-                               (nth (random (length my/enlight-footer-messages))
-                                    my/enlight-footer-messages)))
-                     'face 'italic)
-                    width)
-          :width width))
+    (list :content (propertize
+                    (or my/enlight-footer-message
+                        (setq my/enlight-footer-message
+                              (nth (random (length my/enlight-footer-messages))
+                                   my/enlight-footer-messages)))
+                    'face 'italic)
+          :width width :align 'center))
 
   (defun my/enlight-build-content ()
     ;; No safety margin subtracted from the width in graphical frames: that
