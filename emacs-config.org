@@ -91,6 +91,7 @@ as OPTS to `setup-define'."
 (global-set-key (kbd "C-x C-d")   'dirvish-quick-access)
 (global-set-key (kbd "C-x C-j")   'skk-mode)
 (global-set-key (kbd "C-x b")     'consult-buffer)
+(global-set-key (kbd "C-x c")     'hydra-claude-code/body)
 (global-set-key (kbd "C-x d")     'dirvish)
 (global-set-key (kbd "C-x g")     'magit-status)
 (global-set-key (kbd "C-x u")     'vundo)
@@ -696,10 +697,52 @@ as OPTS to `setup-define'."
 #+BEGIN_SRC emacs-lisp
 (setup (:package inheritenv))
 (setup (:package claude-code)
-  (:require claude-code)
-  (setopt claude-code-terminal-backend 'ghostel)
-  (claude-code-mode)
-  (global-set-key (kbd "C-S-c") claude-code-command-map))
+  (setopt claude-code-terminal-backend 'ghostel))
+
+;; Heads call claude-code.el's own autoloaded commands, so claude-code.el
+;; itself is only pulled in on first invocation of a head, not here.
+(defhydra hydra-claude-code (:hint nil)
+  "
+Claude Code
+^Session^              ^Send^                    ^Misc^
+------------------------------------------------------------------
+[_c_] Start            [_s_] Command             [_/_] Slash commands
+[_C_] Continue         [_r_] Region              [_e_] Fix error at point
+[_R_] Resume           [_x_] Command w/ context  [_m_] Transient menu
+[_i_] New instance     [_o_] Buffer file         [_M_] Cycle mode
+[_d_] Start in dir     [_y_] Return              [_z_] Toggle read-only
+[_f_] Fork             [_n_] Escape              [_p_] Yank media
+[_b_] Switch buffer    [_1_/_2_/_3_] Send N      [_t_] Toggle window
+[_B_] Select buffer                              [_S_] Sandbox
+[_k_] Kill             [_K_] Kill all            [_q_] Quit"
+  ("c" claude-code :exit t)
+  ("C" claude-code-continue :exit t)
+  ("R" claude-code-resume :exit t)
+  ("i" claude-code-new-instance :exit t)
+  ("d" claude-code-start-in-directory :exit t)
+  ("f" claude-code-fork :exit t)
+  ("b" claude-code-switch-to-buffer :exit t)
+  ("B" claude-code-select-buffer :exit t)
+  ("k" claude-code-kill :exit t)
+  ("K" claude-code-kill-all :exit t)
+  ("s" claude-code-send-command)
+  ("r" claude-code-send-region)
+  ("x" claude-code-send-command-with-context)
+  ("o" claude-code-send-buffer-file)
+  ("y" claude-code-send-return)
+  ("n" claude-code-send-escape)
+  ("1" claude-code-send-1)
+  ("2" claude-code-send-2)
+  ("3" claude-code-send-3)
+  ("/" claude-code-slash-commands :exit t)
+  ("e" claude-code-fix-error-at-point :exit t)
+  ("m" claude-code-transient :exit t)
+  ("M" claude-code-cycle-mode)
+  ("z" claude-code-toggle-read-only-mode)
+  ("p" claude-code-yank-media)
+  ("t" claude-code-toggle :exit t)
+  ("S" claude-code-sandbox :exit t)
+  ("q" nil "quit"))
 #+END_SRC
 
 * Editing
