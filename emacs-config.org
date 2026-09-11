@@ -217,14 +217,12 @@ as OPTS to `setup-define'."
   (setopt corfu-auto-delay 0.0)
   (setopt corfu-auto-prefix 1)
   (setopt corfu-cycle t)
-  ;; :bind は :after-loaded なので corfu ロード後に評価される
   (:with-map corfu-map
     (:bind "C-n" corfu-next
            "C-p" corfu-previous
            "C-f" corfu-insert))
   (global-corfu-mode))
 
-;; corfu-history は corfu 本体に同梱されているので :package は付けない
 (setup corfu-history
   (with-eval-after-load 'corfu
     (corfu-history-mode)
@@ -281,13 +279,10 @@ as OPTS to `setup-define'."
 #+END_SRC
 
 ** marginalia
-- 補完候補の右側に注釈を出す (バッファなら 状態フラグ / サイズ / メジャーモード / ファイルパス)
-- vertico が候補を並べ、consult が候補を作り、marginalia がその注釈を足す、という分担
+- 補完候補の右側に注釈を出す
 #+BEGIN_SRC emacs-lisp
 (setup (:package marginalia)
-  ;; 区切りは 3 箇所に入る (候補↔フラグ / フラグ↔サイズ / サイズ↔モード↔パス)
   (setopt marginalia-separator " │ ")
-  ;; ミニバッファ内で注釈の詳しさを循環させる (詳細→簡易→組み込み→無し)
   (keymap-set minibuffer-local-map "M-A" #'marginalia-cycle)
   (marginalia-mode))
 #+END_SRC
@@ -295,7 +290,6 @@ as OPTS to `setup-define'."
 * Editor
 ** emacs
 #+BEGIN_SRC emacs-lisp
-;; 組み込みの設定なので setup フォームにはしない
 (set-locale-environment "ja_JP.UTF-8")
 
 (setopt display-line-numbers-type 'relative)
@@ -338,7 +332,6 @@ as OPTS to `setup-define'."
 
 ** whitespace
 #+BEGIN_SRC emacs-lisp
-;; 組み込みなので :package は付けない
 (setup whitespace
   (setopt whitespace-style '(face
                              trailing
@@ -381,8 +374,7 @@ as OPTS to `setup-define'."
   (setq skk-share-private-jisyo t)
   (setq skk-azik-keyboard-type 'en)
 
-  ;; Emacs 32.1 の `current-time-list' 既定値 nil 化により
-  ;; `skk-setup-shared-private-jisyo' が listp エラーになる (ddskk#205, 未修正)。
+  ;; Workaround for skk-dev/ddskk#205 (current-time-list defaults to nil since Emacs 32.1)
   (defun my/skk-with-legacy-current-time (orig &rest args)
     (let ((current-time-list t))
       (apply orig args)))
@@ -609,7 +601,6 @@ as OPTS to `setup-define'."
 * org関連
 ** org-mode
 #+BEGIN_SRC emacs-lisp
-;; 組み込みなので :package は付けない
 (setup org
   (:when-loaded
     (setq org-directory "~/Documents/org-docs")
@@ -634,7 +625,6 @@ as OPTS to `setup-define'."
 - 見出しの見た目を変えてくれるヤツ
 #+BEGIN_SRC emacs-lisp
 (setup (:package org-superstar)
-  ;; :hook-into は現在の func (org-superstar-mode) を org-mode-hook に足す
   (:hook-into org-mode))
 #+END_SRC
 
