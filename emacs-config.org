@@ -236,6 +236,20 @@ as OPTS to `setup-define'."
         (max 0 (1- (ceiling (cdr (image-size img t)) (frame-char-height))))
       0))
 
+  (defun my/enlight-center-text (text width)
+    "Center TEXT within WIDTH columns using its actual rendered pixel
+width (`string-pixel-width'), not a char-count/column estimate.
+Emacs's column accounting assumes a fixed width per character from a
+table of \"wide\"/\"narrow\" East Asian character classes, which doesn't
+always match how a given font actually renders ambiguous-width CJK
+punctuation -- so char-based centering (what grid.el's :align does)
+can end up visibly off for Japanese text even though the math checks
+out in columns."
+    (let* ((char-w (frame-char-width))
+           (pad-chars (max 0 (round (/ (- (* width char-w) (string-pixel-width text))
+                                        2.0 char-w)))))
+      (concat (make-string pad-chars ?\s) text)))
+
   (defun my/enlight-build-content ()
     ;; A couple of columns/lines of slack: at build time the selected window
     ;; may not yet be *enlight*'s own (e.g. it still has line numbers on),
@@ -261,23 +275,42 @@ as OPTS to `setup-define'."
                            collect (list (abbreviate-file-name root) `(dired ,root)))))))
            (body
             (grid-make-column
-             (delq
-              nil
-              (list
-               (when banner
-                 (list :content banner :width width :align 'center :margin '(0 0 1 0)))
-               (list :content (propertize "SUPER DUPER AMANATSU-CHAN!" 'face 'bold)
-                     :width width :align 'center :margin '(0 0 1 0))
-               (when sections
-                 (list :content (enlight-menu sections)
-                       :width width :align 'center :margin '(0 0 1 0)))
-               (list :content (propertize
-                               (or my/enlight-footer-message
-                                   (setq my/enlight-footer-message
-                                         (nth (random (length my/enlight-footer-messages))
-                                              my/enlight-footer-messages)))
-                               'face 'italic)
-                     :width width :align 'center)))))
+             ;; A blank spacer box between every pair of real boxes, rather
+             ;; than relying on each box's own :margin -- margin's blank
+             ;; line and grid's own inter-row newline didn't compose
+             ;; consistently, giving some gaps 1 blank line and others 2.
+             (let* ((spacer (list :content "" :width width))
+                    (boxes
+                     (delq
+                      nil
+                      (append
+                       (list
+                        (when banner (list :content banner :width width :align 'center))
+                        (list :content (propertize "SUPER DUPER AMANATSU-CHAN!" 'face 'bold)
+                              :width width :align 'center))
+                       ;; One box per category (rather than one `enlight-menu'
+                       ;; call for all of them) so categories get a blank
+                       ;; line between them too. grid's :align 'center centers
+                       ;; each line on its own -- the heading's own text
+                       ;; (after enlight-menu's internal padding is trimmed)
+                       ;; and each item's full label+padding+shortcut span
+                       ;; (nothing to trim there, so it stays one bounding box).
+                       (mapcar (lambda (section)
+                                 (list :content (string-trim-right
+                                                 (enlight-menu (list section)))
+                                       :width width :align 'center))
+                               sections)
+                       (list
+                        (list :content (my/enlight-center-text
+                                        (propertize
+                                         (or my/enlight-footer-message
+                                             (setq my/enlight-footer-message
+                                                   (nth (random (length my/enlight-footer-messages))
+                                                        my/enlight-footer-messages)))
+                                         'face 'italic)
+                                        width)
+                              :width width))))))
+               (cdr (mapcan (lambda (box) (list spacer box)) boxes)))))
            (body-lines (with-temp-buffer (insert body) (count-lines (point-min) (point-max))))
            (top-pad (max 0 (/ (- height body-lines (my/enlight-image-extra-lines banner)) 2))))
       (concat (make-string top-pad ?\n) body)))
@@ -301,7 +334,13 @@ as OPTS to `setup-define'."
   (add-hook 'after-init-hook #'my/enlight-refresh)
   (add-hook 'emacs-startup-hook #'my/enlight-show)
   (add-hook 'window-size-change-functions #'my/enlight-rerender)
-  (add-hook 'enlight-mode-hook (lambda () (display-line-numbers-mode -1))))
+  (add-hook 'enlight-mode-hook
+            (lambda ()
+              (display-line-numbers-mode -1)
+              ;; Truncate rather than wrap: a line running 1-2 columns over
+              ;; from an off-by-a-hair width estimate should just clip,
+              ;; not wrap and drop a confusing fringe mark on some other line.
+              (setq truncate-lines t))))
 #+END_SRC
 
 * Completion
