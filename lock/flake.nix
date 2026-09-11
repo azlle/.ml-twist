@@ -221,6 +221,12 @@
       repo = "with-editor";
       type = "github";
     };
+    zoxide = {
+      flake = false;
+      owner = "~vonfry";
+      repo = "zoxide.el";
+      type = "sourcehut";
+    };
   };
   outputs = _: { };
 }

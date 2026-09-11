@@ -550,7 +550,8 @@
         "twist": "twist",
         "vertico": "vertico",
         "vundo": "vundo",
-        "with-editor": "with-editor"
+        "with-editor": "with-editor",
+        "zoxide": "zoxide"
       }
     },
     "setup": {
@@ -631,6 +632,22 @@
         "owner": "magit",
         "repo": "with-editor",
         "type": "github"
+      }
+    },
+    "zoxide": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1727953848,
+        "narHash": "sha256-FViydgz8U+v7A8n2eRhLBaYsKKeCKoeexQGm9auDkhY=",
+        "owner": "~vonfry",
+        "repo": "zoxide.el",
+        "rev": "0ec359c83b041c8ffe2ec0e70b16c5d218d9bfd9",
+        "type": "sourcehut"
+      },
+      "original": {
+        "owner": "~vonfry",
+        "repo": "zoxide.el",
+        "type": "sourcehut"
       }
     }
   },
