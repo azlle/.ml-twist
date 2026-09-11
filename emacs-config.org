@@ -200,7 +200,6 @@ as OPTS to `setup-define'."
   (:require enlight)
   (setup (:package grid))
   (:require grid)
-  (require 'bookmark)
   (require 'project)
   (setq inhibit-startup-message t)
   ;; We do all centering ourselves below; enlight's own centering measures
@@ -221,14 +220,33 @@ as OPTS to `setup-define'."
   ;; Picked once per Emacs session (not on every resize-triggered rebuild).
   (defvar my/enlight-footer-message nil)
 
-  (defun my/enlight-build-banner ()
-    (let ((img-file (expand-file-name "assets/banner.png" user-emacs-directory)))
-      (when (and (display-graphic-p) (image-type-available-p 'png) (file-exists-p img-file))
+  (defun my/enlight-center-ascii-block (text width)
+    "Left-pad every line of TEXT by the same amount, based on TEXT's
+own widest line, so it's centered as one block within WIDTH columns
+without distorting its shape -- unlike grid.el's per-line :align,
+which would center each line independently."
+    (let* ((block-width (apply #'max (mapcar #'string-width (split-string text "\n"))))
+           (pad (make-string (max 0 (/ (- width block-width) 2)) ?\s)))
+      (replace-regexp-in-string "^" pad text)))
+
+  (defun my/enlight-build-banner (width)
+    (let ((img-file (expand-file-name "assets/banner.png" user-emacs-directory))
+          (txt-file (expand-file-name "assets/banner.txt" user-emacs-directory)))
+      (cond
+       ((and (display-graphic-p) (image-type-available-p 'png) (file-exists-p img-file))
         ;; Use a non-whitespace placeholder char: grid.el's alignment logic
         ;; calls `delete-horizontal-space', which strips literal space
         ;; characters based on the underlying buffer text, ignoring any
         ;; `display' override, and would eat a plain " " placeholder.
-        (propertize "." 'display (create-image img-file)))))
+        (propertize "." 'display (create-image img-file)))
+       ((file-exists-p txt-file)
+        ;; ASCII-art fallback for -nw/terminal frames.
+        (my/enlight-center-ascii-block
+         (propertize
+          (string-trim-right
+           (with-temp-buffer (insert-file-contents txt-file) (buffer-string)))
+          'face '(:foreground "#00fa9a"))
+         width)))))
 
   (defun my/enlight-image-extra-lines (banner)
     "Extra lines BANNER's image occupies beyond its own single logical line."
@@ -246,71 +264,130 @@ punctuation -- so char-based centering (what grid.el's :align does)
 can end up visibly off for Japanese text even though the math checks
 out in columns."
     (let* ((char-w (frame-char-width))
-           (pad-chars (max 0 (round (/ (- (* width char-w) (string-pixel-width text))
-                                        2.0 char-w)))))
-      (concat (make-string pad-chars ?\s) text)))
+           ;; Round to a whole-character budget first, then split leading
+           ;; vs trailing with ceiling/floor -- the same convention grid.el
+           ;; itself uses (`grid--align-line') for every other centered
+           ;; line. Splitting via a single `round' on the halved value
+           ;; instead doesn't always agree with that (banker's rounding on
+           ;; an exact .5 can tip either way), so the two would disagree on
+           ;; some lines by a column, visible as a slightly lopsided edge.
+           (space (max 0 (round (/ (- (* width char-w) (string-pixel-width text))
+                                    (float char-w)))))
+           (lead (ceiling space 2))
+           (trail (floor space 2)))
+      ;; Pad both sides ourselves instead of leaving the trailing side to
+      ;; grid.el's own end-of-line fill (this box gets no :align, since
+      ;; :align would re-center per grid's char-width math and undo the
+      ;; leading pad computed above): grid measures the trailing gap via
+      ;; `current-column' against the *unpadded* line as read back from its
+      ;; own temp buffer, which doesn't necessarily agree with the pixel
+      ;; width `string-pixel-width' saw this text as when the leading pad
+      ;; was computed, leaving a small gap in the trailing padding.
+      (concat (make-string lead ?\s) text (make-string trail ?\s))))
+
+  (defun my/enlight-space-out-menu (text)
+    "Insert a blank line before each section heading in TEXT (the
+`enlight-menu' output for multiple sections), except the first.
+Calling `enlight-menu' separately per section to get this spacing
+would give each section its own `menu-id', which breaks C-n/C-p
+navigation across categories (`enlight-menu-forward-item' only
+moves within buttons sharing the current button's `menu-id')."
+    (let ((first t))
+      (mapconcat
+       (lambda (line)
+         (prog1
+             (if (and (not first)
+                      (> (length line) 0)
+                      (eq (get-text-property 0 'face line) 'enlight-menu-section))
+                 (concat "\n" line)
+               line)
+           (setq first nil)))
+       (split-string text "\n") "\n")))
+
+  (defun my/enlight-banner-box (width banner)
+    ;; The image banner is centered via grid's :align (a single line,
+    ;; safe); the ASCII-art fallback is already block-centered by
+    ;; `my/enlight-build-banner' itself, so :align is omitted there to
+    ;; avoid grid re-centering each line independently and distorting
+    ;; its shape.
+    (when banner
+      (list :content banner :width width
+            :align (and (get-text-property 0 'display banner) 'center))))
+
+  (defun my/enlight-title-box (width)
+    ;; Title and startup-time share one box (rather than two, with a
+    ;; blank-line spacer between) for tight, line-by-line centering. The
+    ;; wording is chosen to land at 26 characters, same as the title, for
+    ;; any startup under 10 seconds.
+    (list :content (concat
+                    (propertize "SUPER DUPER AMANATSU-CHAN!" 'face 'bold)
+                    "\n"
+                    (propertize
+                     (format "Startup completed in %.2fs"
+                             (float-time (time-subtract after-init-time before-init-time)))
+                     'face 'shadow))
+          :width width :align 'center))
+
+  (defun my/enlight-menu-sections ()
+    (seq-remove
+     (lambda (section) (null (cdr section)))
+     `(("Recent Files"
+        ,@(cl-loop for file in (seq-take recentf-list 5)
+                   for i from 1
+                   collect (list (abbreviate-file-name file)
+                                 `(find-file ,file)
+                                 (number-to-string i))))
+       ("Projects"
+        ,@(cl-loop for root in (seq-take (project-known-project-roots) 5)
+                   collect (list (abbreviate-file-name root) `(dired ,root)))))))
+
+  (defun my/enlight-menu-box (width)
+    ;; One `enlight-menu' call for all categories (so they share one
+    ;; `menu-id' and C-n/C-p can move across them), with blank lines
+    ;; spliced in after the fact for breathing room between categories.
+    ;; grid's :align 'center centers each line on its own -- the
+    ;; heading's own text (after enlight-menu's internal padding is
+    ;; trimmed) and each item's full label+padding+shortcut span
+    ;; (nothing to trim there, so it stays one bounding box).
+    (when-let* ((sections (my/enlight-menu-sections)))
+      (list :content (my/enlight-space-out-menu
+                      (string-trim-right (enlight-menu sections)))
+            :width width :align 'center)))
+
+  (defun my/enlight-footer-box (width)
+    (list :content (my/enlight-center-text
+                    (propertize
+                     (or my/enlight-footer-message
+                         (setq my/enlight-footer-message
+                               (nth (random (length my/enlight-footer-messages))
+                                    my/enlight-footer-messages)))
+                     'face 'italic)
+                    width)
+          :width width))
 
   (defun my/enlight-build-content ()
-    ;; A couple of columns/lines of slack: at build time the selected window
-    ;; may not yet be *enlight*'s own (e.g. it still has line numbers on),
-    ;; so its reported size can be slightly off from what *enlight* ends up
-    ;; with, causing the widest line to wrap by a column or two.
-    (let* ((width (- (window-body-width (selected-window)) 3))
+    ;; No safety margin subtracted from the width in graphical frames: that
+    ;; shifted the centering target left of the window's true center, and
+    ;; `truncate-lines' (set in enlight-mode-hook) already makes a stray
+    ;; column or two of overflow just clip instead of wrapping and dropping
+    ;; a fringe mark. TTY frames are different: their last column is
+    ;; implicitly reserved for the truncation/continuation ($/\) indicator,
+    ;; which isn't part of the fringe there (TTY frames have none) and so
+    ;; eats into `window-body-width' -- one column really is unusable.
+    (let* ((width (- (window-body-width (selected-window))
+                      (if (display-graphic-p) 0 1)))
            (height (window-body-height (selected-window)))
-           (banner (my/enlight-build-banner))
-           (sections
-            (seq-remove
-             (lambda (section) (null (cdr section)))
-             `(("Recent Files"
-                ,@(cl-loop for file in (seq-take recentf-list 5)
-                           for i from 1
-                           collect (list (abbreviate-file-name file)
-                                         `(find-file ,file)
-                                         (number-to-string i))))
-               ("Bookmarks"
-                ,@(cl-loop for name in (seq-take (bookmark-all-names) 5)
-                           collect (list name `(bookmark-jump ,name))))
-               ("Projects"
-                ,@(cl-loop for root in (seq-take (project-known-project-roots) 5)
-                           collect (list (abbreviate-file-name root) `(dired ,root)))))))
-           (body
-            (grid-make-column
-             ;; A blank spacer box between every pair of real boxes, rather
-             ;; than relying on each box's own :margin -- margin's blank
-             ;; line and grid's own inter-row newline didn't compose
-             ;; consistently, giving some gaps 1 blank line and others 2.
-             (let* ((spacer (list :content "" :width width))
-                    (boxes
-                     (delq
-                      nil
-                      (append
-                       (list
-                        (when banner (list :content banner :width width :align 'center))
-                        (list :content (propertize "SUPER DUPER AMANATSU-CHAN!" 'face 'bold)
-                              :width width :align 'center))
-                       ;; One box per category (rather than one `enlight-menu'
-                       ;; call for all of them) so categories get a blank
-                       ;; line between them too. grid's :align 'center centers
-                       ;; each line on its own -- the heading's own text
-                       ;; (after enlight-menu's internal padding is trimmed)
-                       ;; and each item's full label+padding+shortcut span
-                       ;; (nothing to trim there, so it stays one bounding box).
-                       (mapcar (lambda (section)
-                                 (list :content (string-trim-right
-                                                 (enlight-menu (list section)))
-                                       :width width :align 'center))
-                               sections)
-                       (list
-                        (list :content (my/enlight-center-text
-                                        (propertize
-                                         (or my/enlight-footer-message
-                                             (setq my/enlight-footer-message
-                                                   (nth (random (length my/enlight-footer-messages))
-                                                        my/enlight-footer-messages)))
-                                         'face 'italic)
-                                        width)
-                              :width width))))))
-               (cdr (mapcan (lambda (box) (list spacer box)) boxes)))))
+           (banner (my/enlight-build-banner width))
+           ;; A blank spacer box between every pair of real boxes, rather
+           ;; than relying on each box's own :margin -- margin's blank
+           ;; line and grid's own inter-row newline didn't compose
+           ;; consistently, giving some gaps 1 blank line and others 2.
+           (spacer (list :content "" :width width))
+           (boxes (delq nil (list (my/enlight-banner-box width banner)
+                                   (my/enlight-title-box width)
+                                   (my/enlight-menu-box width)
+                                   (my/enlight-footer-box width))))
+           (body (grid-make-column (cdr (mapcan (lambda (box) (list spacer box)) boxes))))
            (body-lines (with-temp-buffer (insert body) (count-lines (point-min) (point-max))))
            (top-pad (max 0 (/ (- height body-lines (my/enlight-image-extra-lines banner)) 2))))
       (concat (make-string top-pad ?\n) body)))
