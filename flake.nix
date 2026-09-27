@@ -7,11 +7,13 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
+    # emacs-overlay 自身がビルド・キャッシュに使っている nixpkgs へ合わせる。
+    # 独立したピンのままだと同じコミットになる保証がなく、emacsPackage が
+    # nix-community.cachix.org でキャッシュヒットしない。
+    nixpkgs.follows = "emacs-overlay/nixpkgs";
 
     flake-parts.url = "github:hercules-ci/flake-parts";
-
-    emacs-overlay.url = "github:nix-community/emacs-overlay";
 
     twist.url = "github:emacs-twist/twist.nix";
     org-babel.url = "github:emacs-twist/org-babel";
