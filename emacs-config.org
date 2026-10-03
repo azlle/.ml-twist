@@ -360,12 +360,21 @@ moves within buttons sharing the current button's `menu-id')."
       (enlight)))
 
   (defun my/enlight-show ()
-    ;; `enlight' computes vertical centering from the *enlight* window's
-    ;; height, but that window doesn't exist yet on the first call (the
-    ;; buffer isn't shown anywhere until `enlight-open' below pops it up).
-    ;; Re-render once it actually has a window to measure.
-    (enlight-open)
-    (my/enlight-rerender))
+    ;; If Emacs was started with file/directory arguments (e.g. `emacs
+    ;; foo.el'), `command-line-1' has already visited them and switched
+    ;; to that buffer by the time `emacs-startup-hook' runs this. Honor
+    ;; that the same way `dashboard' or the built-in startup screen
+    ;; would, by only taking over the plain `*scratch*' buffer that
+    ;; Emacs falls back to when nothing was requested on the command
+    ;; line.
+    (when (eq (current-buffer) (get-buffer "*scratch*"))
+      ;; `enlight' computes vertical centering from the *enlight*
+      ;; window's height, but that window doesn't exist yet on the
+      ;; first call (the buffer isn't shown anywhere until
+      ;; `enlight-open' below pops it up). Re-render once it actually
+      ;; has a window to measure.
+      (enlight-open)
+      (my/enlight-rerender)))
 
   (add-hook 'after-init-hook #'my/enlight-refresh)
   (add-hook 'emacs-startup-hook #'my/enlight-show)
