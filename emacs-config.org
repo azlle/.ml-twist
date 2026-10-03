@@ -574,19 +574,31 @@ moves within buttons sharing the current button's `menu-id')."
 *** wdired fixup
 - Maximize root pane in wdired mode, with full details.
 #+BEGIN_SRC emacs-lisp
-  (defvar-local my/wdired-layout-was-shown nil)
+  ;; Maximize via plain window-configuration save/restore rather than
+  ;; `dirvish-layout-toggle': that relies on Dirvish's own cached
+  ;; `dv-winconf', which is only refreshed when the fullframe layout is
+  ;; rebuilt. Navigate to a different directory without rebuilding it
+  ;; (e.g. descend, wdired once, go back up) and the cache still points
+  ;; at the old directory's window/buffer arrangement; toggling into
+  ;; wdired then "restores" that stale snapshot, silently switching the
+  ;; selected window back to the old buffer even though the buffer we
+  ;; actually just wdired-ified is fine, just no longer on screen. A
+  ;; freshly-captured window configuration has no such cache to go
+  ;; stale, and works the same whether or not Dirvish's own panes
+  ;; (`dv-curr-layout') are active for this session.
+  (defvar-local my/wdired-window-config nil)
 
   (defun my/wdired-enter-fixup (&rest _)
-    (when-let* ((dv (dirvish-curr)) ((dv-curr-layout dv)))
-      (setq my/wdired-layout-was-shown t)
-      (dirvish-layout-toggle))
+    (unless (one-window-p)
+      (setq my/wdired-window-config (current-window-configuration))
+      (delete-other-windows))
     (dired-hide-details-mode -1)
     (let (dirvish-hide-cursor) (dirvish--maybe-toggle-cursor 'hollow)))
 
   (defun my/wdired-exit-fixup (&rest _)
-    (when (and my/wdired-layout-was-shown (dirvish-curr))
-      (setq my/wdired-layout-was-shown nil)
-      (dirvish-layout-toggle))
+    (when my/wdired-window-config
+      (set-window-configuration my/wdired-window-config)
+      (setq my/wdired-window-config nil))
     (dirvish--maybe-toggle-details))
   (advice-add 'wdired-change-to-wdired-mode :after #'my/wdired-enter-fixup)
   (advice-add 'wdired-change-to-dired-mode :after #'my/wdired-exit-fixup)
