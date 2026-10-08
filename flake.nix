@@ -56,42 +56,47 @@
             ];
           };
 
-          profile = {
-            lockDir = ./lock;
-            earlyInitFile = pkgs.tangleOrgBabelFile "early-init.el" ./early-init.org { };
-            initFiles = [ (pkgs.tangleOrgBabelFile "init.el" ./emacs-config.org { }) ];
-            exportManifest = true;
-            emacsPackage = pkgs.emacs-git-pgtk;
-          };
+          lockDir = ./lock;
+          earlyInitFile = pkgs.tangleOrgBabelFile "early-init.el" ./early-init.org { };
+          initFiles = [ (pkgs.tangleOrgBabelFile "init.el" ./emacs-config.org { }) ];
 
-          package = inputs.twist.lib.makeEnv {
-            inherit pkgs;
-            inherit (profile) emacsPackage lockDir initFiles exportManifest;
+          mkPackage =
+            emacsPackage:
+            inputs.twist.lib.makeEnv {
+              inherit pkgs emacsPackage lockDir initFiles;
+              exportManifest = true;
 
-            # use-package ではなく setup.el を使うので、パッケージの抽出も
-            # (:package NAME) を読むパーサに切り替える
-            initParser = inputs.twist.lib.parseSetup { inherit lib; } { };
+              # use-package ではなく setup.el を使うので、パッケージの抽出も
+              # (:package NAME) を読むパーサに切り替える
+              initParser = inputs.twist.lib.parseSetup { inherit lib; } { };
 
-            # setup 自身は setup で宣言できないため明示的に足す
-            extraPackages = [ "setup" ];
+              # setup 自身は setup で宣言できないため明示的に足す
+              extraPackages = [ "setup" ];
 
-            registries = import ./nix/registries.nix {
-              inherit inputs;
-              inherit (profile) emacsPackage;
-            } ++ [ ];
-          };
+              registries = import ./nix/registries.nix {
+                inherit inputs emacsPackage;
+              } ++ [ ];
+            };
+
+          package = mkPackage pkgs.emacs-git-pgtk;
+          # GUIの要らないホスト (NAS機等) 向け。home-manager側 (.ml-nix) が
+          # host typeに応じてdefault/noxを出し分ける。native-compも切って
+          # ビルドをbyte-compileのみにし、libgccjit/binutilsも実行時
+          # クロージャから外す (NASでのElisp実行速度低下は許容)。
+          packageNox = mkPackage (pkgs.emacs-git-nox.override { withNativeCompilation = false; });
 
           defaultWrapper = pkgs.callPackage ./nix/tmpInitDirWrapper.nix { } {
             emacsEnv = package;
-            inherit (profile) initFiles earlyInitFile;
+            inherit initFiles earlyInitFile;
             assetsDir = ./assets;
             manifestFile = package.emacsWrapper.elispManifestPath;
           };
         in
         {
           packages.default = package;
+          packages.nox = packageNox;
           # home-manager モジュール側から拾えるように earlyInitFile も出力しておく
-          packages.earlyInitFile = profile.earlyInitFile;
+          packages.earlyInitFile = earlyInitFile;
 
           apps = package.makeApps { lockDirName = "lock"; } // {
             default = {
@@ -122,7 +127,7 @@
             [
               adwaita-icon-theme
               adwaita-icon-theme-legacy
-              ffmpeg
+              ffmpeg-headless
               gcc
               skkDictionaries.l
               vips
