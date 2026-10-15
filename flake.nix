@@ -127,6 +127,7 @@
             [
               adwaita-icon-theme
               adwaita-icon-theme-legacy
+              clang-tools
               ffmpeg-headless
               gcc
               skkDictionaries.l

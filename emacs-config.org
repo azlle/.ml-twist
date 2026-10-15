@@ -1049,7 +1049,14 @@ autoload the package on its own) gets pressed."
 #+BEGIN_SRC emacs-lisp
 ;; 先にnix shell nixpkgs#gccでコンパイル準備をしておく
 (setq treesit-language-source-alist
-      '((nix . ("https://github.com/nix-community/tree-sitter-nix"))))
+      '((c   . ("https://github.com/tree-sitter/tree-sitter-c"))
+        (nix . ("https://github.com/nix-community/tree-sitter-nix"))))
+#+END_SRC
+
+** C
+#+BEGIN_SRC emacs-lisp
+(setup c-ts-mode
+  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode)))
 #+END_SRC
 
 ** Nix
@@ -1057,6 +1064,19 @@ autoload the package on its own) gets pressed."
 (setup (:package nix-ts-mode)
   (setq treesit-font-lock-level 4)
   (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode)))
+#+END_SRC
+
+* LSP
+** eglot
+- clangdはnix側(flake.nix home.packages)にclang-toolsを追加してPATHへ供給する
+- 整形はapheleia等を別途挟まず、clangdが管理しているバッファだけbuffer-localにeglot-format-bufferをbefore-save-hookへ入れる
+#+BEGIN_SRC emacs-lisp
+(setup eglot
+  (add-hook 'c-ts-mode-hook #'eglot-ensure)
+  (add-hook 'eglot-managed-mode-hook
+            (lambda ()
+              (when (eglot-managed-p)
+                (add-hook 'before-save-hook #'eglot-format-buffer nil t)))))
 #+END_SRC
 
 * azlle/defun
