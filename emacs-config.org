@@ -686,13 +686,6 @@ moves within buttons sharing the current button's `menu-id')."
   (setq skk-share-private-jisyo t)
   (setq skk-azik-keyboard-type 'en)
 
-  ;; Workaround for skk-dev/ddskk#205 (current-time-list defaults to nil since Emacs 32.1)
-  (defun my/skk-with-legacy-current-time (orig &rest args)
-    (let ((current-time-list t))
-      (apply orig args)))
-  (advice-add 'skk-setup-shared-private-jisyo
-              :around #'my/skk-with-legacy-current-time)
-
   (defun my/skk-azik-load-hooks ()
     (dolist (str '("kv" "jv" "dv" "nv" "pv" "mv" "yv"
                    "sm" "zm" "dm" "fm" "kA" "kE"
