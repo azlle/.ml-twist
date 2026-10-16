@@ -937,14 +937,18 @@ autoload the package on its own) gets pressed."
 (setup (:package diff-hl)
   ;; ファイルを開くまでgitガターは要らないので、`require'自体を最初の
   ;; find-file-hookまで遅延させる (diff-hl.elのロードだけで20-30msかかる)
+  ;; ディレクトリ(dired/dirvish)はfind-file-noselectがfind-file-hookを
+  ;; 呼ぶ経路を通らないので、dired-mode-hookにも同じ初期化を掛けておく。
   (with-eval-after-load 'magit
     (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh))
   (defun my/diff-hl-init ()
     (require 'diff-hl)
     (global-diff-hl-mode)     ; diff-hlモードをグローバルに有効化
     ;; (diff-hl-margin-mode)  ; フリンジではなくマージン領域に差分表示
-    (remove-hook 'find-file-hook #'my/diff-hl-init))
-  (add-hook 'find-file-hook #'my/diff-hl-init))
+    (remove-hook 'find-file-hook #'my/diff-hl-init)
+    (remove-hook 'dired-mode-hook #'my/diff-hl-init))
+  (add-hook 'find-file-hook #'my/diff-hl-init)
+  (add-hook 'dired-mode-hook #'my/diff-hl-init))
 #+END_SRC
 
 ** magit
