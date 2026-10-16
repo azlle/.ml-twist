@@ -686,6 +686,18 @@ moves within buttons sharing the current button's `menu-id')."
   (setq skk-share-private-jisyo t)
   (setq skk-azik-keyboard-type 'en)
 
+  ;; Works around `skk-setup-shared-private-jisyo' breaking when
+  ;; `current-time-list' defaults to nil (Emacs 32+).
+  (defun my/skk-with-legacy-current-time (orig &rest args)
+    (let ((real-current-time (symbol-function 'current-time)))
+      (unwind-protect
+          (progn
+            (fset 'current-time (lambda () (time-convert nil 'list)))
+            (apply orig args))
+        (fset 'current-time real-current-time))))
+  (advice-add 'skk-setup-shared-private-jisyo
+              :around #'my/skk-with-legacy-current-time)
+
   (defun my/skk-azik-load-hooks ()
     (dolist (str '("kv" "jv" "dv" "nv" "pv" "mv" "yv"
                    "sm" "zm" "dm" "fm" "kA" "kE"
