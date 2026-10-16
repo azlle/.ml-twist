@@ -485,6 +485,7 @@ moves within buttons sharing the current button's `menu-id')."
 (set-frame-parameter nil 'undecorated t)
 (global-display-line-numbers-mode t)
 (repeat-mode 1)
+(electric-pair-mode 1)
 ;; default face のフォントは early-init.org の `default-frame-alist' で指定している
 
 ;; ;; japanese-jisx0208, japanese-jisx0213.2004-1
