@@ -1082,6 +1082,8 @@ autoload the package on its own) gets pressed."
 - 整形はapheleia等を別途挟まず、clangdが管理しているバッファだけbuffer-localにeglot-format-bufferをbefore-save-hookへ入れる
 #+BEGIN_SRC emacs-lisp
 (setup eglot
+  ;; on-type-formatting fights electric-pair's newline-between-pairs trick, stranding point on the closing brace
+  (setq eglot-ignored-server-capabilities '(:documentOnTypeFormattingProvider))
   (add-hook 'c-ts-mode-hook #'eglot-ensure)
   (add-hook 'eglot-managed-mode-hook
             (lambda ()
