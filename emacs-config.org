@@ -167,6 +167,10 @@ as OPTS to `setup-define'."
 #+BEGIN_SRC emacs-lisp
 (setup (:package moody)
   (setopt x-underline-at-descent-line t)
+  ;; 既定値の計算は font-info でフォントを検索し直すので、先に同じ値を入れておく
+  (when (display-graphic-p)
+    (setq moody-mode-line-height
+          (* 2 (font-get (face-attribute 'default :font) :size))))
   (:require moody)
   (moody-replace-mode-line-buffer-identification)
   ;; (moody-replace-vc-mode)
@@ -521,11 +525,20 @@ moves within buttons sharing the current button's `menu-id')."
   (setopt whitespace-trailing-regexp "\\([ \u00A0]+\\)$")
   (setopt whitespace-action '(auto-cleanup))
 
-  (add-hook 'after-init-hook #'global-whitespace-mode))
+  ;; 起動を速くするため、最初にファイルを開くまで有効化しない
+  (defun my/whitespace-enable ()
+    (remove-hook 'find-file-hook #'my/whitespace-enable)
+    (global-whitespace-mode 1))
+  (add-hook 'find-file-hook #'my/whitespace-enable))
 #+END_SRC
 
 ** dired
+- dired, wdired, dirvish の設定は dired を読み込むまで遅延する。dirvish ブロックの末尾で閉じる
 #+BEGIN_SRC emacs-lisp
+;; twist のパーサはトップレベルの (:package) しか読まないので、ここで宣言する
+(setup (:package dirvish))
+
+(with-eval-after-load 'dired
 (setup dired
   (setopt dired-listing-switches "-ahl --group-directories-first")
   (setopt dired-vc-rename-file t)
@@ -649,6 +662,7 @@ moves within buttons sharing the current button's `menu-id')."
             '(("h" "~/" "Home")
               ("c" "~/.ml-twist/" "Emacs config (twist)")
               ("d" "~/Documents/org-docs/denote/" "Denote")))))
+)
 #+END_SRC
 
 ** zoxide
@@ -662,6 +676,16 @@ moves within buttons sharing the current button's `menu-id')."
 * 日本語入力
 ** ddskk
 #+BEGIN_SRC emacs-lisp
+;; ddskk の autoload は after-init-hook で ccc-setup を呼ぶ。
+;; これが ccc の読み込みを引き起こすので、skk を読み込むまで遅らせる
+(setq after-init-hook
+      (seq-remove (lambda (f)
+                    (and (not (symbolp f))
+                         (string-match-p "ccc-setup" (prin1-to-string f))))
+                  after-init-hook))
+(with-eval-after-load 'skk
+  (when window-system (ccc-setup)))
+
 (setup (:package ddskk)
   (setq skk-large-jisyo
         (cond
@@ -954,6 +978,8 @@ autoload the package on its own) gets pressed."
 ** magit
 #+BEGIN_SRC emacs-lisp
 (setup (:package magit)
+  ;; 起動時に magit-autorevert を読み込ませない。magit を読み込むと有効になる
+  (remove-hook 'after-init-hook 'magit-auto-revert-mode--after-init)
   (:when-loaded
     (require 'magit-extras)))
 #+END_SRC

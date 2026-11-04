@@ -37,6 +37,22 @@
   (setq native-comp-async-jobs-number 8)
   (setq native-comp-speed 3))
 
+;; パッケージは twist が事前にネイティブコンパイル済みなので、起動時の JIT は止める
+(setq native-comp-jit-compilation nil)
+
+;; フレーム生成時の FcFontMatch を減らす。1 回あたり約 3.6ms かかる。
+;; tab-bar / tab-line はテーマ適用前に variable-pitch のフォントを探しに行くが、
+;; テーマ適用後は等幅フォントになるため、その検索は無駄になる
+(dolist (f '(tab-bar tab-line))
+  (put f 'face-defface-spec
+       (let ((s (copy-tree (get f 'face-defface-spec))))
+         (named-let walk ((x s))
+           (cond ((eq x 'variable-pitch) 'default)
+                 ((consp x) (cons (walk (car x)) (walk (cdr x))))
+                 (t x))))))
+;; 既定の spec は斜体の対応確認にフォントを開く。Moralerspace には斜体があるので省く
+(put 'italic 'face-defface-spec '((t :slant italic)))
+
 (provide 'early-init)
 ;;; early-init.el ends here
 #+END_SRC
