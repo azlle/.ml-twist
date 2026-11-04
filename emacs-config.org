@@ -172,9 +172,11 @@ as OPTS to `setup-define'."
     (setq moody-mode-line-height
           (* 2 (font-get (face-attribute 'default :font) :size))))
   (:require moody)
-  (moody-replace-mode-line-buffer-identification)
-  ;; (moody-replace-vc-mode)
-  (moody-replace-eldoc-minibuffer-message-function))
+  ;; moody のタブは XPM 画像なので、XPM を使えない nox 版では mode-line を置き換えない
+  (when (image-type-available-p 'xpm)
+    (moody-replace-mode-line-buffer-identification)
+    ;; (moody-replace-vc-mode)
+    (moody-replace-eldoc-minibuffer-message-function)))
 #+END_SRC
 
 ** enlight
@@ -486,11 +488,13 @@ moves within buttons sharing the current button's `menu-id')."
 ;; (setq face-font-rescale-alist
 ;;     '(("BIZ UDGothic" . 1.2)))
 
-(dolist (range '((#xE000   . #xF8FF)
-                 (#xF0000  . #xFFFFF)
-                 (#x100000 . #x10FFFF)))
-  (set-fontset-font t range
-                    (font-spec :family "Symbols Nerd Font Mono")))
+;; nox 版には set-fontset-font がない
+(when (fboundp 'set-fontset-font)
+  (dolist (range '((#xE000   . #xF8FF)
+                   (#xF0000  . #xFFFFF)
+                   (#x100000 . #x10FFFF)))
+    (set-fontset-font t range
+                      (font-spec :family "Symbols Nerd Font Mono"))))
 #+END_SRC
 
 ** gcmh
@@ -566,10 +570,12 @@ moves within buttons sharing the current button's `menu-id')."
 *** current-line highlight
 #+BEGIN_SRC emacs-lisp
   (require 'color)
-  (set-face-attribute 'dirvish-hl-line nil
-                       :background (color-lighten-name
-                                    (face-attribute 'default :background nil t) 15)
-                       :extend t)
+  ;; 端末では背景色が unspecified-bg になり、色を計算できないことがある
+  (let ((bg (face-attribute 'default :background nil t)))
+    (when (color-name-to-rgb bg)
+      (set-face-attribute 'dirvish-hl-line nil
+                          :background (color-lighten-name bg 15)
+                          :extend t)))
 #+END_SRC
 
 *** wdired fixup
