@@ -1,18 +1,18 @@
 {
   "nodes": {
-    "autothemer": {
+    "au-themes": {
       "flake": false,
       "locked": {
-        "lastModified": 1781943093,
-        "narHash": "sha256-p2IAxQQ/x5y/Uc5G6taw9ZeeSz+YLpuMXoktJ8vDvUA=",
-        "owner": "jasonm23",
-        "repo": "autothemer",
-        "rev": "04ae311c64ba715c1094d2f6179377ad74ea612f",
+        "lastModified": 1793621167,
+        "narHash": "sha256-evAyYGGuC3F+CXxfHcjM9ZlK6Gbluc7X9jXZYMPkiKk=",
+        "owner": "szymonwilczek",
+        "repo": "au-themes",
+        "rev": "c2f5b97aa57140e9d67d6beb402d9f526e15cddf",
         "type": "github"
       },
       "original": {
-        "owner": "jasonm23",
-        "repo": "autothemer",
+        "owner": "szymonwilczek",
+        "repo": "au-themes",
         "type": "github"
       }
     },
@@ -128,22 +128,6 @@
         "type": "github"
       }
     },
-    "dash": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1771681581,
-        "narHash": "sha256-VkBJAX1zPjQ0tH3nVSmMH5veOaQl1fgtzWIi4BN0v5A=",
-        "owner": "magnars",
-        "repo": "dash.el",
-        "rev": "d3a84021dbe48dba63b52ef7665651e0cf02e915",
-        "type": "github"
-      },
-      "original": {
-        "owner": "magnars",
-        "repo": "dash.el",
-        "type": "github"
-      }
-    },
     "ddskk": {
       "flake": false,
       "locked": {
@@ -205,6 +189,22 @@
       "original": {
         "owner": "alexluigit",
         "repo": "dirvish",
+        "type": "github"
+      }
+    },
+    "ef-themes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793558065,
+        "narHash": "sha256-gbb2IfRSKSVgiyS/cOscm19LyMrnKrJZM4GYXRr0MCQ=",
+        "owner": "protesilaos",
+        "repo": "ef-themes",
+        "rev": "4c15af95c7246a754056f885a0f033085f712aa3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "protesilaos",
+        "repo": "ef-themes",
         "type": "github"
       }
     },
@@ -304,22 +304,6 @@
         "type": "github"
       }
     },
-    "kaolin-themes": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1781907072,
-        "narHash": "sha256-Pt1yUPJIMXcI+VD4InEhX4fc+mI9MrXcc1dOQUmsXUs=",
-        "owner": "ogdenwebb",
-        "repo": "emacs-kaolin-themes",
-        "rev": "432c6672b16e867ec40eaf312d2fbbeb38673fa9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ogdenwebb",
-        "repo": "emacs-kaolin-themes",
-        "type": "github"
-      }
-    },
     "llama": {
       "flake": false,
       "locked": {
@@ -413,6 +397,22 @@
       "original": {
         "owner": "minad",
         "repo": "marginalia",
+        "type": "github"
+      }
+    },
+    "modus-themes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793466167,
+        "narHash": "sha256-j+zZB65H7pwLl+M+rRnwklOcaPVz0OgwlFuXJ/kWpAg=",
+        "owner": "protesilaos",
+        "repo": "modus-themes",
+        "rev": "782743415b3eedac0b99db2342fb35703deb752f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "protesilaos",
+        "repo": "modus-themes",
         "type": "github"
       }
     },
@@ -530,7 +530,7 @@
     },
     "root": {
       "inputs": {
-        "autothemer": "autothemer",
+        "au-themes": "au-themes",
         "ccc": "ccc",
         "cdb": "cdb",
         "claude-code": "claude-code",
@@ -538,24 +538,24 @@
         "cond-let": "cond-let",
         "consult": "consult",
         "corfu": "corfu",
-        "dash": "dash",
         "ddskk": "ddskk",
         "denote": "denote",
         "diff-hl": "diff-hl",
         "dirvish": "dirvish",
+        "ef-themes": "ef-themes",
         "enlight": "enlight",
         "gcmh": "gcmh",
         "ghostel": "ghostel",
         "grid": "grid",
         "hydra": "hydra",
         "inheritenv": "inheritenv",
-        "kaolin-themes": "kaolin-themes",
         "llama": "llama",
         "lv": "lv",
         "magit": "magit",
         "magit-prime": "magit-prime",
         "magit-section": "magit-section",
         "marginalia": "marginalia",
+        "modus-themes": "modus-themes",
         "moody": "moody",
         "multiple-cursors": "multiple-cursors",
         "nerd-icons": "nerd-icons",

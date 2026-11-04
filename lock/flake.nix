@@ -1,10 +1,10 @@
 {
   description = "THIS IS AN AUTO-GENERATED FILE. PLEASE DON'T EDIT IT MANUALLY.";
   inputs = {
-    autothemer = {
+    au-themes = {
       flake = false;
-      owner = "jasonm23";
-      repo = "autothemer";
+      owner = "szymonwilczek";
+      repo = "au-themes";
       type = "github";
     };
     ccc = {
@@ -49,12 +49,6 @@
       repo = "corfu";
       type = "github";
     };
-    dash = {
-      flake = false;
-      owner = "magnars";
-      repo = "dash.el";
-      type = "github";
-    };
     ddskk = {
       flake = false;
       owner = "skk-dev";
@@ -77,6 +71,12 @@
       flake = false;
       owner = "alexluigit";
       repo = "dirvish";
+      type = "github";
+    };
+    ef-themes = {
+      flake = false;
+      owner = "protesilaos";
+      repo = "ef-themes";
       type = "github";
     };
     enlight = {
@@ -114,12 +114,6 @@
       repo = "inheritenv";
       type = "github";
     };
-    kaolin-themes = {
-      flake = false;
-      owner = "ogdenwebb";
-      repo = "emacs-kaolin-themes";
-      type = "github";
-    };
     llama = {
       flake = false;
       owner = "tarsius";
@@ -154,6 +148,12 @@
       flake = false;
       owner = "minad";
       repo = "marginalia";
+      type = "github";
+    };
+    modus-themes = {
+      flake = false;
+      owner = "protesilaos";
+      repo = "modus-themes";
       type = "github";
     };
     moody = {
