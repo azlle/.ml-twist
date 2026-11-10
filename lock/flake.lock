@@ -528,6 +528,22 @@
         "type": "github"
       }
     },
+    "puni": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779204424,
+        "narHash": "sha256-LwGNrSrY8Ff13xYx9B7zI81YmKQHX8IwfXJEyaFVzV8=",
+        "owner": "AmaiKinono",
+        "repo": "puni",
+        "rev": "04819e0bad5ed62af9e412ef9715b33bb1edc3ba",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AmaiKinono",
+        "repo": "puni",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "au-themes": "au-themes",
@@ -563,11 +579,13 @@
         "nix-ts-mode": "nix-ts-mode",
         "orderless": "orderless",
         "org-superstar": "org-superstar",
+        "puni": "puni",
         "setup": "setup",
         "twist": "twist",
         "vertico": "vertico",
         "vundo": "vundo",
         "with-editor": "with-editor",
+        "yasnippet": "yasnippet",
         "zoxide": "zoxide"
       }
     },
@@ -648,6 +666,22 @@
       "original": {
         "owner": "magit",
         "repo": "with-editor",
+        "type": "github"
+      }
+    },
+    "yasnippet": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1749025756,
+        "narHash": "sha256-GXgZuIXm1btNkZLYFRq4MIuTczLpkmLGUTDft5mFdSI=",
+        "owner": "joaotavora",
+        "repo": "yasnippet",
+        "rev": "c1e6ff23e9af16b856c88dfaab9d3ad7b746ad37",
+        "type": "github"
+      },
+      "original": {
+        "owner": "joaotavora",
+        "repo": "yasnippet",
         "type": "github"
       }
     },

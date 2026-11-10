@@ -198,6 +198,12 @@
       repo = "org-superstar-mode";
       type = "github";
     };
+    puni = {
+      flake = false;
+      owner = "AmaiKinono";
+      repo = "puni";
+      type = "github";
+    };
     setup = {
       flake = false;
       type = "git";
@@ -225,6 +231,12 @@
       flake = false;
       owner = "magit";
       repo = "with-editor";
+      type = "github";
+    };
+    yasnippet = {
+      flake = false;
+      owner = "joaotavora";
+      repo = "yasnippet";
       type = "github";
     };
     zoxide = {
