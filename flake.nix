@@ -130,6 +130,7 @@
               clang-tools
               ffmpeg-headless
               gcc
+              gdb
               skkDictionaries.l
               vips
               wl-clipboard
