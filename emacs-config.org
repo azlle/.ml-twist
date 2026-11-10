@@ -402,6 +402,13 @@ moves within buttons sharing the current button's `menu-id')."
       (add-to-list 'savehist-additional-variables 'corfu-history))))
 #+END_SRC
 
+** yasnippet
+- eglotのスニペット展開用(clangdの`#include <header>`や関数引数のプレースホルダ)
+- eglotは`yas-minor-mode`がfboundp(autoload)ならスニペット対応としてサーバへ伝え、展開時に自分で`yas-minor-mode`を有効にする。なので起動時には何も読み込まない
+#+BEGIN_SRC emacs-lisp
+(setup (:package yasnippet))
+#+END_SRC
+
 ** company(deprecated)
 #+BEGIN_SRC emacs-lisp :tangle no
 (use-package company
@@ -948,6 +955,15 @@ autoload the package on its own) gets pressed."
 ** vundo
 #+BEGIN_SRC emacs-lisp
 (setup (:package vundo))
+#+END_SRC
+
+** puni
+- 括弧の対応を崩さない削除/killと構造編集。括弧の自動挿入はelectric-pair-modeに任せたまま
+- `puni-global-mode`は起動時にpuni.elを読み込むので使わず、autoloadされた`puni-mode`をフックに掛けて最初のバッファまで遅延させる(端末バッファにも入らない)
+#+BEGIN_SRC emacs-lisp
+(setup (:package puni)
+  (add-hook 'prog-mode-hook #'puni-mode)
+  (add-hook 'text-mode-hook #'puni-mode))
 #+END_SRC
 
 * Note
