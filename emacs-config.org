@@ -1079,6 +1079,7 @@ autoload the package on its own) gets pressed."
 ;; 先にnix shell nixpkgs#gccでコンパイル準備をしておく
 (setq treesit-language-source-alist
       '((c   . ("https://github.com/tree-sitter/tree-sitter-c"))
+        (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
         (nix . ("https://github.com/nix-community/tree-sitter-nix"))))
 #+END_SRC
 
@@ -1086,6 +1087,13 @@ autoload the package on its own) gets pressed."
 #+BEGIN_SRC emacs-lisp
 (setup c-ts-mode
   (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode)))
+#+END_SRC
+
+** C++
+#+BEGIN_SRC emacs-lisp
+(setup c++-ts-mode
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode)))
 #+END_SRC
 
 ** Nix
@@ -1104,6 +1112,7 @@ autoload the package on its own) gets pressed."
   ;; on-type-formatting fights electric-pair's newline-between-pairs trick, stranding point on the closing brace
   (setq eglot-ignored-server-capabilities '(:documentOnTypeFormattingProvider))
   (add-hook 'c-ts-mode-hook #'eglot-ensure)
+  (add-hook 'c++-ts-mode-hook #'eglot-ensure)
   (add-hook 'eglot-managed-mode-hook
             (lambda ()
               (when (eglot-managed-p)
