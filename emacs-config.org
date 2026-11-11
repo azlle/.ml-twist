@@ -77,6 +77,7 @@ as OPTS to `setup-define'."
 * Keybindings
 - 各パッケージ本体のコマンド/Emacs組み込みコマンドへのグローバルバインドはここに集約する
 - corfu/companyのようにローカルキーマップ(:map)へのバインドはglobal-set-keyで代替できないため、各パッケージのuse-package定義内に残す
+  - ただしpuniのように、キーマップがautoloadsで起動時から定義されているものはここでkeymap-setする
 ** C-x
 #+BEGIN_SRC emacs-lisp
 ;; consult
@@ -125,6 +126,19 @@ as OPTS to `setup-define'."
 (global-unset-key (kbd "C-<down-mouse-2>"))
 (global-unset-key (kbd "C-<down-mouse-3>"))
 (global-unset-key (kbd "S-<down-mouse-1>"))
+#+END_SRC
+
+** puni-mode-map
+- puni-mode-mapはpuni-autoloads.elで定義済み、コマンドも全部autoloadなので、ここで割り当ててもpuni.elは読み込まれない
+#+BEGIN_SRC emacs-lisp
+(keymap-set puni-mode-map "C-h"   #'puni-backward-delete-char) ; グローバルのC-hをDELと揃える
+(keymap-set puni-mode-map "M-s s" #'puni-splice)
+(keymap-set puni-mode-map "M-r"   #'puni-raise)
+(keymap-set puni-mode-map "C-)"   #'puni-slurp-forward)
+(keymap-set puni-mode-map "C-}"   #'puni-barf-forward)
+(keymap-set puni-mode-map "C-("   #'puni-slurp-backward)
+(keymap-set puni-mode-map "C-{"   #'puni-barf-backward)
+(keymap-set puni-mode-map "C-="   #'puni-expand-region)
 #+END_SRC
 
 * Appearance
